@@ -1,0 +1,124 @@
+(include "../../../../kit/macros")
+
+(include "../../../../kit/util.sibilant")
+(import-namespace kit)
+
+
+(include "./headers")
+
+(def-lit-macro gmth (name args ...body)
+  `(generic @name (mth) @args ...@body))
+(def-lit-macro mth (name args ...body)
+  `(mth @name @args ...@body))
+
+
+
+(var dom-tree-root
+
+     (pipe document.body
+           (with-dom
+               (.div .id "container"
+                     (.h1 "SPECIATION")
+                     (.div .id "stage")))))
+
+(.render dom-tree-root)
+
+(var sim ( (create Simulation) 30 100 8))
+(assign global.sim sim)
+
+(include "./field.sibilant")
+
+;;(include "./gl.sibilant")
+
+(include "./game")
+
+(def total (arr)
+  "calculate the total sum of all values in an eachable."
+  (var sum 0)
+
+  (each arr (v) (incr-by sum v))
+  sum)
+
+
+
+(def display-stats (field-system)
+  "calculate and log the average and total values for all cells in a system."
+
+  (pipe field-system.field
+        total
+        (aprint "total" field-system.name)
+
+        (/  (* 100 100))
+        (aprint "average" field-system.name)))
+
+(def update-entities ()
+  "update the state of every entity. Entity updates may affect fields and other systems."
+
+  (each entities (ent)
+        (.update ent)))
+
+;; (def update-off-beat-fields (current-system)
+;;   "Swap the transition with the state of all field systems except the one currently said to be active."
+;;   (pipe systems
+;;         (.filter  (=> (s) (not (= s current-system))))
+;;         (each (s) (.update s.field))))
+(def update-on-beat-field (current-system ticks)
+
+  "calculate the values for the system that is said to currently be active. Systems are updated one
+at a time, one per tick,so that updates to each can make changes to each. Values of each system will
+be integrated for the time missing between each of their updates."
+
+  (.update  current-system ticks)
+
+  (.update current-system.field))
+
+(def get-onbeat (ticks)
+  "return the id of the *onbeat* or major system of the current tick"
+  (get systems (mod ticks systems.length) 'symbol))
+
+(def refresh-fields ()
+  "update the state matricies of every existing field."
+  (each systems (system) (.update system.field )))
+
+(def update-display ()
+  (pipe sim.layers
+        (.update )
+        (.render)))
+
+(def update-game (ticks)
+  "Gets called every tick of the game, and for every system of the process,
+we update its state, and recaculate the values of the current major field."
+  (var current-system (get systems (mod ticks systems.length) ))
+
+  ;;(print "starting update" sim.elapsed ticks current-system)
+
+  ;;(refresh-fields)
+
+
+  ;;(update-off-beat-fields current-system ticks)
+
+  (update-on-beat-field current-system ticks)
+
+  (refresh-fields)
+
+  (update-entities)
+
+  (refresh-fields)
+  ;; (display-stats Water )
+  ;; (display-stats Heat)
+
+
+  (update-display )
+  )
+
+
+
+(create-instance-of Algae 50 50)
+
+(create-instance-of Algae 10 50)
+(create-instance-of Algae 50 20)
+
+(on (.start sim) "tick" (now ticks)
+
+
+    (update-game ticks))

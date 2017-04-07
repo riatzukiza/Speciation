@@ -1,0 +1,44 @@
+
+(specify Nutriants (extend Container))
+(specify Hydration (extend Container))
+
+(specify Calories (extend Container))
+
+
+(describe Calories
+          (doc
+           "Calories are units of potential energy, when calories are used,
+damage will be done to the entity based on how many calories are burned. Hydration
+reduces energy used, vitamins reduce the amount of damage taken per calorie burned")
+          (gmth update (entity max value delta (calories this))
+
+                (let ((hydration (get entity Hydration.symbol ))
+                      (health (get entity Health.symbol)))
+
+                  (let ((burn (/  delta.negative (+ 0.001 (percent-of hydration)))))
+
+
+                    ;; (sprint delta.negative)
+                    ;; (sprint burn)
+                    (set delta 'negative burn)
+
+                    (.remove hydration burn)
+                    (.remove health burn)
+                    (when (< calories.value burn)
+
+                      (.remove health (* 5 burn)))
+
+                    (.call Container.update calories entity)))))
+
+(specify Health (extend Container))
+(describe Health
+          (doc "Health represents the amount of damage an entity is capable of taking,
+damage can come from any where,even the entities own body;though digestion. When an entities health reaches 0, it dies.
+Dead entities still exist for a while, until their resources have been completely decayed into the surrounding, either from
+being eaten, or passive movement of gasses and liquids away from a high density source.")
+          (gmth update (entity  (health this))
+
+                (.call Container.update this entity)
+                (when (<= health.value 0)
+                  (print "entity died")
+                  (.remove entity))))

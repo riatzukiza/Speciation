@@ -1,0 +1,33 @@
+{
+  "name": "symbiants",
+  "version": "0.0.4",
+  "description": "webgl",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ./open-electron.js"
+  },
+  "repository": {
+    "type": "",
+    "url": ""
+  },
+  "author": "",
+  "license": "",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "chokidar": "^1.6.1",
+    "jimp": "^0.2.27",
+    "jquery": "^3.1.1",
+    "ramda": "^0.22.1",
+    "sibilant": "*",
+    "source-map-support": "^0.4.11"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.1.10",
+    "babel-preset-modern-browsers": "^8.1.0",
+    "babel-preset-modern-node": "^3.2.0",
+    "electron-prebuilt": "latest"
+  }
+}

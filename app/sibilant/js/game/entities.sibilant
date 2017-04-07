@@ -1,0 +1,90 @@
+(type Collision)
+(describe Collision
+          (*map (new Map))
+
+          (mth has ([x y] (default *map this.*map))
+                (.has *map (.get sim.coord x y)))
+
+          (mth set ([x y] entity (default *map this.*map) )
+                (.set *map (.get sim.coord x y) entity))
+
+          (mth get ([x y] (default *map this.*map))
+                (.get *map (.get sim.coord x y) ))
+
+          (mth move ([x y] entity)
+               (unless (.has Collision [x y])
+
+                 (.delete *map (.get sim.coord entity.x entity.y))
+                 (.set *map (.get sim.coord x y) entity)
+
+                 (set entity 'x x 'y y)
+
+                 this
+
+                 ))
+
+          (mth delete ([x y] (default *map this.*map))
+                (.delete *map (.get sim.coord x y))))
+(specify Entity (extend Event-emitter.prototype))
+(describe Entity
+          (layer (.get sim.layers))
+          (init (x y components)
+
+                (unless (.has Collision [x y])
+                  (.set Collision [x y] this)
+
+                  (.add  this.layer this)
+                  (.push entities this)
+
+                  (assign this.components
+                          (pipe components
+                                (.map (=> (T)
+                                          (set this T.symbol (create-instance-of T this))))))))
+          (mth move ([x y]) (.move Collision [x y] this))
+
+          (gmth remove ((entity this) layer)
+                (assign entities (R.without [entity] entities))
+                (.delete Collision [this.x this.y])
+                (.delete layer entity))
+
+          (gmth update (components)
+                (each components (comp)
+
+
+                      (.update comp))))
+
+
+(specify Algae (extend Entity))
+
+(describe Algae
+
+          (gett r 0)
+          (gett g 255)
+          (gett b 0)
+
+          (gett a 255)
+
+          (components
+
+           [
+
+           (extend Health (lit (max 100)))
+           Water-absorbtion Photoreceptor Nutriant-absorber
+
+            Mitosis
+
+           ;; ;; base life form stuff
+
+           (create-instance-of Nutriants this)
+           Calories
+
+           ;; Hydration reduces the amount of energy required to perform most actions.
+           ;; resulting in less damage taken
+
+           Hydration
+
+
+           Natural-healing
+
+           ]))
+(print entities.length)
