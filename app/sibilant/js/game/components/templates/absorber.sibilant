@@ -1,35 +1,37 @@
-
 (type Absorber )
+
 (describe Absorber
 
           (kernel (kernel 3 3
                           [
-                          [ 0.01 0.01 0.01 ]
-                          [ 0.01 0.04 0.01 ]
-                          [ 0.01 0.01 0.01 ]
+                          [ 0.1 0.1 0.1 ]
+                          [ 0.1 0.4 0.1 ]
+                          [ 0.1 0.1 0.1 ]
                           ]))
 
-          (cost 10)
+          (cost 0.00001)
           (Field null)
           (Container null)
 
           (init (entity Field  (neiborhood (moore entity.x entity.y Field.field))))
 
-          (gmth update (entity neiborhood kernel cost Container)
-                ;; the idea of an absorber I think could be generalized beyond an association with calories and this game specifically,
-                ;; but right now it'll be faster to toss it in here, since all the ones I will be needing will use these actively.
+          (def-generic update (entity neiborhood kernel cost Container)
+            ;; the idea of an absorber I think could be generalized beyond an association with calories and this game specifically,
+            ;; but right now it'll be faster to toss it in here, since all the ones I will be needing will use these actively.
 
-                ;; I think if a distinction gets made, the kind that uses calories shall be called `active absorbers`
+            ;; I think if a distinction gets made, the kind that uses calories shall be called `active absorbers`
 
-                (let* (( comp (get entity Container.symbol))
-                       ( calories (get entity Calories.symbol))
-                       (current (get comp 'value))
-                       (absorbed (.convolve kernel neiborhood)))
+            (let* (( container (get entity Container.symbol))
+                   (current (get container 'value)))
 
-                  (each kernel (v x y)
-                        (let (( r (- (.get neiborhood x y) v)))
-                          (.set neiborhood x y (ternary (> r 0 ) r 0))))
+              (if (< current container.max )
+                  (let (( calories (get entity Calories.symbol))
+                        (absorbed (.convolve kernel neiborhood)))
 
-                  (.add comp absorbed)
+                    (each kernel (v x y)
+                          (let (( r (- (.get neiborhood x y) v)))
+                            (.set neiborhood x y (ternary (> r 0 ) r 0))))
 
-                  (.remove calories (* absorbed cost)))))
+                    (.add container absorbed)
+
+                    (.remove calories (* absorbed cost)))))))

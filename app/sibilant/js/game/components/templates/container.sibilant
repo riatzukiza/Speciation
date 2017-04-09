@@ -1,33 +1,33 @@
 
 (type Container)
 (describe Container
-          (max 100)
+          (max 1000)
 
           (init (entity max (value max) (delta { positive 0 negative 0 }) ))
 
-          (gmth add (v )
-                (incr-by this.delta.positive v))
+          (def-generic add (v )
+            (incr-by this.delta.positive v))
 
-          (gmth remove (v)
-                (incr-by this.delta.negative v))
+          (def-generic remove (v)
+            (incr-by this.delta.negative v))
 
-          (gmth full? (value max)
-                (> value max))
+          (def-generic full? (value max)
+            (> value max))
 
-          (gmth empty? (value)
-                (< value 0))
+          (def-generic empty? (value)
+            (< value 0))
 
-          (gmth update (entity max value delta (container this))
+          (def-generic update (entity max value delta (container this))
 
-                (var c (- (+ value delta.positive) delta.negative))
+            (var c (- (+ value delta.positive) delta.negative))
 
-                (if (.full? container c)
-                    (assign container.value max)
+            (if (.full? container c)
+                (assign container.value max)
 
-                    (if  (.empty? container c)
-                         (assign container.value 0)
-                         (assign container.value c)))
+                (if  (.empty? container c)
+                     (assign container.value 0)
+                     (assign container.value c)))
 
-                (set container.delta
-                     'positive 0
-                     'negative 0)))
+            (set container.delta
+                 'positive 0
+                 'negative 0)))

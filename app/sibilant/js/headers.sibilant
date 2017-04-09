@@ -16,8 +16,6 @@
        ["("  b " in " a " )"])
 
 
-(macro aprint (...args)
-       (lambda (x) (print ...args)))
 
 (macro def-memoized (name args ...body)
 

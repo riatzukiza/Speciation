@@ -8,8 +8,16 @@
 
 (specify Photoreceptor (extend Absorber))
 (describe Photoreceptor
+          (kernel (kernel 3 3
+                          [
+                          [ 1 1 1 ]
+                          [ 1 4 1 ]
+                          [ 1 1 1 ]
+                          ]))
           (Container Calories)
-          (Field Light))
+          (Field Light)
+          (def-generic update (entity neiborhood kernel cost Container)
+            (.update Absorber entity neiborhood kernel cost Container)))
 
 
 (specify Water-absorbtion (extend Absorber))

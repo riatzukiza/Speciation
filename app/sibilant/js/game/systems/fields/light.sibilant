@@ -21,5 +21,5 @@
 
   ;; influences are additive, each new influence increases the value of this field.
 
-  (.set field x y (summate influences)))
+  (.set field x y (* 1 (summate influences))))
 

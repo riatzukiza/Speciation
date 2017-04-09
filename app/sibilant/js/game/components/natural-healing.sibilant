@@ -1,7 +1,7 @@
 (type Natural-healing)
 
 (describe Natural-healing
-          (rate 5)
+          (rate 30)
           (cost 5)
           (init (entity ))
 

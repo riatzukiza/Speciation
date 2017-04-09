@@ -1,0 +1,15 @@
+
+(each systems (s) (.randomize s) )
+(create-instance-of Algae 20 50)
+(create-instance-of Algae 10 50)
+
+(create-instance-of Algae 15 50)
+
+
+(create-instance-of Algae 40 50)
+
+(create-instance-of Algae 45 50)
+(create-instance-of Algae 50 20)
+
+(create-instance-of Algae 10 20)
+

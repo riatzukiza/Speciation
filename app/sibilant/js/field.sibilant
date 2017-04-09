@@ -5,32 +5,7 @@
 
 (var state-space (create State-space))
 
-(macro def-description (name args ...body)
-       "define a type and describe it in a function like syntax. The arguements body is passed to the last instance of the init macro as its argument body."
-
-       (def init-expression? (e) (and (expression? e) (= (get (first e.contents) 'token)  'init)))
-       (def describer? (e) (not (init-expression? e)))
-
-       (var init-form (pipe body (.filter  init-expression?)
-                            last
-                            ))
-       (var init-body (ternary init-form (rest init-form.contents) []))
-
-       (var description [ `(init @args ...@init-body)...(pipe body (.filter  describer?))])
-
-       (if (dotted? name)
-           `(set Descriptions (quote @name) (mixin (lit ...@description) @name  ))
-           `(set Descriptions (quote @name) (mixin (lit ...@description) @name  ))))
-
 (type Component)
-;; (describe Component
-
-
-;;           (gett influences (pipe this.system.influences
-;;                                  (.map  (=> (s) (.get s.field this.x this.y)))))
-;;           (gett value (.get field this.x this.y))
-;;           (sett value v (.set field this.x this.y v))
-;;           )
 
 (def-description Component (x y (neiborhood (moore x y this.field)))
   (gett influences (pipe this.system.influences
@@ -39,36 +14,6 @@
   (sett value v (.set this.field this.x this.y v)))
 
 
-(print Component)
-(print  Descriptions)
-(print Component)
-
-;; (def-description Field-system
-
-;;     (name
-;;      *component-type
-;;      (render? false) height width
-
-;;      (symbol (Symbol name))
-;;      (field (state-space width height))
-;;      (components [])
-;;      ;; collection of systems whos values influence this one
-
-;;      (layer (if render? (.get sim.layers) (new Set)))
-
-;;      (system this)
-;;      (Component (extend this *component-type)))
-
-;;   (init (.push systems this))
-;;   (*component-type Component)
-
-;;   (doc "A quantity which has a value over every point of a global space for all locations in space and time.")
-
-;;   (height sim.*width)
-
-;;   (width sim.*width)
-;;   (gett array this.components))
-;;(print Field-system)
 
 (def-description Field-system
     (name
@@ -98,6 +43,12 @@
   "for every value influenced by the field, create a point object to represent that value"
 
   (pipe field (each (v x y) (.add-component this x y v))))
+(def-generic Field-system.clear (field components)
+  (.transit field (=> (x) 0))
+  (.update field)
+  (.transit field (=> (x) x))
+  (.update field)
+  )
 
 (def-generic Field-system.add-component ( x y value *Component layer components)
 
@@ -118,11 +69,14 @@
   ;; (.update field)
 
   )
-(def randomize-field (field)
+(def-generic randomize-field (field (system this))
 
   (.transit field (=> (x) (Math.random)))
   (.update field)
   (.transit field (=> (x) x))
-  (.update field))
+  (.update field)
+  (assign system.max 0)
+  )
+(assign Field-system.randomize randomize-field)
 
 (var field-system (create Field-system))

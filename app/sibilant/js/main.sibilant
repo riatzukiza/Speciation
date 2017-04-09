@@ -11,6 +11,32 @@
 (def-lit-macro mth (name args ...body)
   `(mth @name @args ...@body))
 
+(def-lit-macro def (name args ...body)
+  `(mth @name @args ...@body))
+
+(def-lit-macro def-generic (name args ...body)
+  `(gmth @name @args ...@body))
+
+(macro if! (cond ...body) `(state if @cond  ...@(interleave ";\n" body)))
+
+
+(macro def-description (name args ...body)
+       "define a type and describe it in a function like syntax. The arguements body is passed to the last instance of the init macro as its argument body."
+
+       (def init-expression? (e) (and (expression? e) (= (get (first e.contents) 'token)  'init)))
+       (def describer? (e) (not (init-expression? e)))
+
+       (var init-form (pipe body (.filter  init-expression?)
+                            last
+                            ))
+       (var init-body (ternary init-form (rest init-form.contents) []))
+
+       (var description [ `(init @args ...@init-body)...(pipe body (.filter  describer?))])
+
+       (if (dotted? name)
+           `(set Descriptions (quote @name) (mixin (lit ...@description) @name  ))
+           `(set Descriptions (quote @name) (mixin (lit ...@description) @name  ))))
+
 
 
 (var dom-tree-root
@@ -28,9 +54,6 @@
 
 (include "./field.sibilant")
 
-;;(include "./gl.sibilant")
-
-(include "./game")
 
 (def total (arr)
   "calculate the total sum of all values in an eachable."
@@ -46,10 +69,10 @@
 
   (pipe field-system.field
         total
-        (aprint "total" field-system.name)
+        ((aprint "total" field-system.name))
 
         (/  (* 100 100))
-        (aprint "average" field-system.name)))
+        ( (aprint "average" field-system.name))))
 
 (def update-entities ()
   "update the state of every entity. Entity updates may affect fields and other systems."
@@ -104,19 +127,19 @@ we update its state, and recaculate the values of the current major field."
   (update-entities)
 
   (refresh-fields)
+
   ;; (display-stats Water )
   ;; (display-stats Heat)
 
 
-  (update-display )
-  )
+  (update-display ))
 
 
+;; (include "./gl.sibilant")
 
-(create-instance-of Algae 50 50)
+(include "./game")
+(include "./game/starting-entities")
 
-(create-instance-of Algae 10 50)
-(create-instance-of Algae 50 20)
 
 (on (.start sim) "tick" (now ticks)
 

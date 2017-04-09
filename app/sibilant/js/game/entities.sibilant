@@ -30,16 +30,18 @@
           (layer (.get sim.layers))
           (init (x y components)
 
-                (unless (.has Collision [x y])
-                  (.set Collision [x y] this)
+                (if (not (.has Collision [x y]))
+                    (do (.set Collision [x y] this)
 
-                  (.add  this.layer this)
-                  (.push entities this)
+                     (.add  this.layer this)
+                     (.push entities this)
 
-                  (assign this.components
-                          (pipe components
-                                (.map (=> (T)
-                                          (set this T.symbol (create-instance-of T this))))))))
+                     (assign this.components
+                             (pipe components
+                                   (.map (=> (T)
+                                             (set this T.symbol (create-instance-of T this))))))
+                      (set this 'spawned? true))
+                    (do (set this 'spawned? false))))
           (mth move ([x y]) (.move Collision [x y] this))
 
           (gmth remove ((entity this) layer)
@@ -58,11 +60,40 @@
 
 (describe Algae
 
-          (gett r 0)
-          (gett g 255)
-          (gett b 0)
+          (r 0)
+          (g 255)
+          (b 0)
 
-          (gett a 255)
+          (a 255)
+
+          ;; BREAKIN
+          (init (x y components)
+                (.call Entity.init this  x y components)
+                (on this "death" (entity)
+
+                    (.remove entity)
+
+                    (require-components
+                     entity
+
+                     (Hydration
+                      Calories
+                      Nutriants)
+                     ;;(print Health Nutriants Calories Hydration)
+
+                     (set entity 'r 128 'g 100 'b 80)
+
+                     (assign entity.components
+                             [
+                             Hydration
+                             ;;Calories
+                             Nutriants
+                             Nutriant-emitter
+                             Water-emitter
+                             Decaying
+
+                             ])
+                     (.call Entity.init entity ))))
 
           (components
 
