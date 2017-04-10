@@ -1,6 +1,6 @@
+(include "../../../node_modules/kit/macros.sibilant")
 
-(include "../../../../kit/macros")
-(include "./meta/macros")
+(include "../../../node_modules/kit/util.sibilant")
 
 (import-namespace kit)
 
