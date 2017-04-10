@@ -2,8 +2,8 @@
 
 (require! R "ramda")
 
-(include "../kit/macros"
-         "../kit/inc/shell")
+(include "./node_modules/kit/macros"
+         "./node_modules/kit/inc/shell")
 
 (import-namespace kit)
 (import-namespace shell)

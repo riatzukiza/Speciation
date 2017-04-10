@@ -116,14 +116,14 @@
               Calories
               Nutriants)
 
-             (print Health Nutriants Calories Hydration)
+             ;;(print Health Nutriants Calories Hydration)
 
              (let ((chance-to-divide (prob-prod [Health Hydration Calories Nutriants]))
                    (random (Math.random)))
 
                ;; (print "chance to divide" chance-to-divide)
 
-               (if (>  (* 0.1 chance-to-divide) random)
+               (if (>  (* 0.5 chance-to-divide) random)
 
                    (divide entity  probability-space))))))
 

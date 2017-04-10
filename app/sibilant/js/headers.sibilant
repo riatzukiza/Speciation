@@ -7,8 +7,8 @@
           $  "jquery/dist/jquery.min.js"
 
           (lit  Event-emitter ) "events"
-          (lit Buffer Program Shader Attribute Type Context Uniform) "../../../../andy_webgl/lib/webgl/gl.js"
-          (lit Blend-mode) "../../../../andy_webgl/lib/math/color.js"
+          (lit Buffer Program Shader Attribute Type Context Uniform) "webgl/lib/webgl/gl.js"
+          (lit Blend-mode) "webgl/lib/math/color.js"
           )
 (var (lit ubyte) Type)
 

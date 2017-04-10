@@ -1,6 +1,7 @@
-(include "../../../../kit/macros")
+(include "../../../node_modules/kit/macros.sibilant")
 
-(include "../../../../kit/util.sibilant")
+(include "../../../node_modules/kit/util.sibilant")
+
 (import-namespace kit)
 
 
@@ -108,31 +109,7 @@ be integrated for the time missing between each of their updates."
         (.update )
         (.render)))
 
-(def update-game (ticks)
-  "Gets called every tick of the game, and for every system of the process,
-we update its state, and recaculate the values of the current major field."
-  (var current-system (get systems (mod ticks systems.length) ))
 
-  ;;(print "starting update" sim.elapsed ticks current-system)
-
-  ;;(refresh-fields)
-
-
-  ;;(update-off-beat-fields current-system ticks)
-
-  (update-on-beat-field current-system ticks)
-
-  (refresh-fields)
-
-  (update-entities)
-
-  (refresh-fields)
-
-  ;; (display-stats Water )
-  ;; (display-stats Heat)
-
-
-  (update-display ))
 
 
 ;; (include "./gl.sibilant")

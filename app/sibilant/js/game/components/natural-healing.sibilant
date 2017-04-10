@@ -2,7 +2,7 @@
 
 (describe Natural-healing
           (rate 30)
-          (cost 5)
+          (cost 1)
           (init (entity ))
 
           (gmth update (entity rate (healing this))

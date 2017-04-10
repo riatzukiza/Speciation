@@ -1,30 +1,3 @@
-(type Collision)
-(describe Collision
-          (*map (new Map))
-
-          (mth has ([x y] (default *map this.*map))
-                (.has *map (.get sim.coord x y)))
-
-          (mth set ([x y] entity (default *map this.*map) )
-                (.set *map (.get sim.coord x y) entity))
-
-          (mth get ([x y] (default *map this.*map))
-                (.get *map (.get sim.coord x y) ))
-
-          (mth move ([x y] entity)
-               (unless (.has Collision [x y])
-
-                 (.delete *map (.get sim.coord entity.x entity.y))
-                 (.set *map (.get sim.coord x y) entity)
-
-                 (set entity 'x x 'y y)
-
-                 this
-
-                 ))
-
-          (mth delete ([x y] (default *map this.*map))
-                (.delete *map (.get sim.coord x y))))
 (specify Entity (extend Event-emitter.prototype))
 (describe Entity
           (layer (.get sim.layers))
@@ -66,7 +39,6 @@
 
           (a 255)
 
-          ;; BREAKIN
           (init (x y components)
                 (.call Entity.init this  x y components)
                 (on this "death" (entity)
@@ -99,7 +71,7 @@
 
            [
 
-           (extend Health (lit (max 100)))
+            Health 
            Water-absorbtion Photoreceptor Nutriant-absorber
 
             Mitosis

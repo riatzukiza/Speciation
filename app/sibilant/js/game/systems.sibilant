@@ -72,6 +72,8 @@
          "./systems/fields/light"
          "./systems/fields/simple-water"
          "./systems/fields/silt"
+         "./systems/collision"
          )
+
 
 
