@@ -4,7 +4,7 @@
     "description": "webgl",
     "main": "main.js",
     "scripts": {
-        "start": "electron ./open-electron.js"
+        "start": "sibilant -x ./main.sibilant"
     },
     "repository": {
         "type": "",
