@@ -4,7 +4,7 @@
     "description": "webgl",
     "main": "main.js",
     "scripts": {
-        "start": "sibilant -x ./main.sibilant"
+        "start": "./node_modules/sibilant/bin/sibilant -x main.sibilant"
     },
     "repository": {
         "type": "",

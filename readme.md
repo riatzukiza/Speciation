@@ -7,6 +7,10 @@ You have a singular creature, and their goal is to survive, and reproduce, so th
 The game consists of many changing parts, the weather will be a factor in survival, too hot? too cold? your species must live on regardless. Over specialization will be your downfall.
 
 
+## QUICK START
+
+`git clone git@github.com:riatzukiza/Speciation.git`
+
 # Overview
 
 
