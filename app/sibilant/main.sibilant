@@ -1,14 +1,11 @@
-(include "../../../node_modules/kit/macros.sibilant")
-
-(include "../../../node_modules/kit/util.sibilant")
+(include "kit/macros.sibilant")
+(include "kit/util.sibilant")
 
 (import-namespace kit)
 
-
-(include "./headers")
-
 (def-lit-macro gmth (name args ...body)
   `(generic @name (mth) @args ...@body))
+
 (def-lit-macro mth (name args ...body)
   `(mth @name @args ...@body))
 
@@ -17,6 +14,10 @@
 
 (def-lit-macro def-generic (name args ...body)
   `(gmth @name @args ...@body))
+(def-lit-macro gett (...body)
+  `(gett ...@body))
+(include "./headers")
+
 
 (macro if! (cond ...body) `(state if @cond  ...@(interleave ";\n" body)))
 

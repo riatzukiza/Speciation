@@ -12,7 +12,8 @@
 
           (gett g (percent-to-color (Math.pow (* 2 this.value) this.gamma)))
 
-          (gett b (+ 60 (percent-to-color (Math.pow this.value this.gamma))))
+          (gett b (+ 60
+                     (percent-to-color (Math.pow this.value this.gamma))))
 
           (gett a (percent-to-color 0.2)))
 

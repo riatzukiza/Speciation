@@ -1,6 +1,5 @@
-(specify Kernel (extend Matrix)
+(specify Kernel (extend Matrix))
 
-         )
 (describe Kernel
 
           (init (  width height (*kernel (loop (collect r [])

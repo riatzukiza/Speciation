@@ -1,6 +1,10 @@
+
 (specify Entity (extend Event-emitter.prototype))
+
 (describe Entity
+
           (layer (.get sim.layers))
+
           (init (x y components)
 
                 (if (not (.has Collision [x y]))
@@ -10,11 +14,11 @@
                      (.push entities this)
 
                      (assign this.components
-                             (pipe components
-                                   (.map (=> (T)
-                                             (set this T.symbol (create-instance-of T this))))))
+                             (pipe components (.map (=> (T) (set this T.symbol (create-instance-of T this)))))) 
+
                       (set this 'spawned? true))
                     (do (set this 'spawned? false))))
+
           (mth move ([x y]) (.move Collision [x y] this))
 
           (gmth remove ((entity this) layer)
@@ -70,9 +74,10 @@
           (components
 
            [
-
-            Health 
-           Water-absorbtion Photoreceptor Nutriant-absorber
+           Health
+           Water-absorbtion
+           Photoreceptor
+           Nutriant-absorber
 
             Mitosis
 
