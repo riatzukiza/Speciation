@@ -1,0 +1,52 @@
+
+(include "./meta/meta")
+(include "./meta/macros")
+
+
+(require! (lit create extend mixin cond partially-apply-after ) "kit/js/util"
+
+          (lit  Event-emitter ) "events"
+
+          (lit Buffer Program Shader Attribute Type Context Uniform) "webgl/lib/webgl/gl"
+
+          (lit Blend-mode) "webgl/lib/math/color.js")
+
+(var (lit ubyte) Type)
+
+;; (macro in? (a b) ["("  b " in " a " )"])
+
+
+
+(macro def-memoized (name args ...body)
+
+       ;;`(def @name @args ...@body)
+       `(var @name (memoize (lambda @args ...@body))))
+
+
+(macro def-generic (name args ...body)
+       `(generic @name (def) @args ...@body))
+
+
+(def-lit-macro gmth (name args ...body)
+  `(generic @name (mth) @args ...@body))
+(def-lit-macro mth (name args ...body)
+  `(mth @name @args ...@body))
+
+(def-lit-macro def (name args ...body)
+  `(mth @name @args ...@body))
+
+(def-lit-macro def-generic (name args ...body)
+  `(gmth @name @args ...@body))
+
+
+(def-lit-macro gett (...body)
+  `(gett ...@body))
+
+(def-lit-macro sett (...body)
+  `(sett ...@body))
+
+(include "./lib/lib")
+
+;; STANDING!!!!!!!!!!!!!!!!!!!!!!!
+
+;;(include "./simulation.sibilant")

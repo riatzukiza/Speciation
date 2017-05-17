@@ -1,0 +1,63 @@
+(def-interface Vertex-context
+    (*members
+     count
+     (vertex-buffer (pipe (new Buffer  gl.ARRAY_BUFFER, gl.DYNAMIC_DRAW)
+                          (.bind)
+                          (.data *members.data)
+                          (.unbind))))
+
+  (u-res (new Uniform.Vector2 "Resolution" (window.size)))
+  (u-scale (new Uniform.Float "Scale" 1.0))
+
+  (context (pipe (new Context)
+
+                 (.make-current)
+                 (.resize (dots (window.size)))
+
+                 (.clear-color 0 0 0 1)
+                 (.blend true)
+                 (.clear)
+                 ))
+
+
+  (program (new Program
+                (new Shader Shader.vertex vert-shader-string)
+                (new Shader Shader.fragment fragment-shader-string)))
+
+  (def-generic *render (in-use context)
+
+    (each in-use (v) (.draw context gl.POINTS  v.id 1)))
+
+  (def-generic enable (program u-res u-scale )
+    (.enable program)
+    (.enable u-res)
+    (.enable u-scale)
+
+    (.enable-gl-attributes Vertex))
+
+  (def-generic disable (program u-res u-scale)
+
+    (.disable-gl-attributes Vertex)
+
+    (.disable program)
+
+    (.disable u-res)
+    (.disable u-scale))
+
+  (def-generic render (in-use context vertex-buffer program [u-res u-scale] count *members)
+    "render each visible dot to the screen"
+
+    (pipe vertex-buffer .bind (.data *members.data) .unbind)
+
+    (.clear context)
+
+    (.bind vertex-buffer)
+
+    (.enable this)
+
+    (.*render this in-use)
+
+
+    (.disable this)
+
+    (.unbind vertex-buffer)))

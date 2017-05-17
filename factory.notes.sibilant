@@ -1,0 +1,45 @@
+(macro transpile-name (name) `(get (sibilant (get (first (get @name "contents")) 'token)) 'js))
+
+(macro transpile-and-format (form)
+       `(pipe  @form
+               transpile
+               output-formatter
+               ))
+(macro def-macro (name args ...body)
+
+       (assign name (transpile-name `(@ name)))
+
+       (var t (transpile-and-format  `(lambda @args ...@body)))
+
+       (set  namespace name (eval t))
+       null)
+;; (def-macro def-generic-macro (name args ...body)
+;;   `(generic @name (def-macro) @args ...@body))
+;; (def-generic-macro test (a)
+;;   a)
+
+(def create-factory (init interface)
+
+  (var type (mixin interface (lit init)))
+  (mixin type init ))
+
+(def-macro factory (args interface ...body)
+  `(scoped
+    (var type (mixin @interface (lit (init @args ...@body))))
+    (mixin   type (create type))
+
+
+    )
+  )
+(var Type-class (factory (*value) ))
+(macro def-factory (name args interface ...body)
+       `(var ))
+
+(var resolve Promise.resolve)
+
+(var Process
+     (factory (name args (*config { stdio [null null null "ipc"] }) (*process (spawn name args *config)))))
+
+(var Communicable-process
+     (factory (name args (*config { stdio [null null null "ipc"] }) (*process (spawn name args *config)))
+              ((def-promised send (message *process) (.send *process message success)))))

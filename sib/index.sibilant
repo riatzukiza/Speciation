@@ -1,0 +1,32 @@
+(include "kit/macros.sibilant")
+
+(import-namespace kit)
+
+(macro in ( k o) [k " in " o])
+(macro instance-of? (item type) ["("  type " " 'instanceof " " item ")"])
+
+(include "./headers"
+
+         )
+
+
+(include "./ticker")
+(print (pipe Ticker
+       (.init  5)
+       (.start )
+       (.remove-all-listeners 'tick)
+
+       (.on 'tick (=> (now tick)  (.update vert-sys)))))
+
+
+
+(var vert-sys ((create Vertex-system) 1000))
+(var p1 (.insert vert-sys [[ 10 10 0 ] [ 0 255 0 255 ] ]))
+
+(set-for p1.point 'x 20 'y 20)
+
+(var wrap Document-node.wrap)
+(var stage (dom (.div .id 'stage )))
+(var container (dom (.div .id "container" stage Vertex-system.*gl.context.canvas)))
+
+(with-dom Document-root (.div .id 'frame container))

@@ -1,0 +1,40 @@
+(def-interface Ticker (fps)
+
+  (extend Event-emitter.prototype)
+
+  (state false)
+  (ticks 0)
+
+  (gett rate (/ 1000 this.fps))
+
+  (init (Event-emitter.call this))
+
+  (def-generic update (previous rate)
+
+    (when this.state
+
+      (var now (Date.now))
+
+      (assign this.elapsed (- now previous))
+
+      (window.request-animation-frame (-> (this.update  )))
+
+      (when (> this.elapsed rate)
+
+        (++ this.ticks)
+
+        (assign this.previous (- now (mod this.elapsed rate)))
+
+        (this.emit 'tick now this.ticks))) this)
+
+  (def start ()
+
+    (set this
+         'state true
+         'previous (Date.now))
+
+    (this.update))
+
+  (def stop ()
+    (assign this.state false)
+    this))

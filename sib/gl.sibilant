@@ -1,0 +1,177 @@
+(var u-res (new Uniform.Vector2 "Resolution" [sim.width sim.width]))
+(var u-scale (new Uniform.Float "Scale" 1.0))
+
+(var Color (new Type.Composite (lit (r ubyte) (g ubyte) (b ubyte) (a ubyte))))
+
+(var Vertex-view (new Type.Composite (lit (point Type.Vector3) (color Color))))
+
+
+
+
+
+;; (class foobar
+;;        ((mth constructor () (assign this.bligns null) )))
+;; (specify meow (extend foobar.prototype))
+;; (describe meow
+;;           (init () (foobar.constructor.call this))
+;;           (gmth hi ()))
+;; ((create meow))
+
+
+(var vert-shader-string ("#version 300 es
+in vec3 a_point;
+in vec4 a_color;
+
+out highp vec4 vColor;
+
+uniform vec2  u_Resolution;
+uniform float u_Scale;
+
+vec4 clipspace_coordinate( vec3 xyz, float scale, vec2 res )
+{
+  return vec4( (xyz * vec3(1.0,1.0,1.0) * scale) / (vec3(res,1.0)) * 1.98 - 0.99, 1.0) * vec4( 1.0,-1.0,1.0,1.0 );
+}
+
+void main(void)
+{
+    gl_Position  = clipspace_coordinate( a_point, u_Scale, u_Resolution );
+    gl_PointSize = 1.0;
+    vColor       = a_color;
+}")
+     fragment-shader-string ("#version 300 es
+precision mediump float;
+
+in  vec4 vColor;
+out vec4 FragColor;
+
+void main(void)
+{
+    FragColor = vColor;
+}"))
+
+(alias-macro def-description def-describe)
+
+(type Vertex )
+(def-describe Vertex (*view)
+  (gett pos [this.view.x this.view.y this.view.z])
+  (sett pos [x y z] (set-for this.view x y z))
+
+  (gett color )
+  (sett color [r g b a])
+
+  (gett r)
+  (sett r)
+
+  (gett g)
+
+  (sett g)
+
+  (gett b)
+  (sett b)
+
+  (gett a)
+  (sett a)
+
+  (gett x)
+  (sett x)
+
+  (gett y)
+  (sett y)
+
+  (gett z)
+  (sett z)
+
+  (def move ())
+  (def remove ()))
+
+(def-description Vertex-system
+    (limit
+
+     [ width height ]
+
+     (u-res (new Uniform.Vector2 "Resolution" [width height]))
+     ;; I don't actually understand this one.
+     (u-scale (new Uniform.Float "Scale" 1.0))
+
+     (context (new Context))
+
+
+     (*verts (Vertex.Array limit))
+     (*tree ((create Tree-map)))
+
+     (*available (.map *verts  (=> (v id) (assign v.id id))))
+     (*in-use [])
+
+     (vertex-buffer (pipe (new Buffer  gl.ARRAY_BUFFER, gl.DYNAMIC_DRAW)
+                          (.bind)
+                          (.data verts.data)
+                          (.unbind)))
+     (program (new Program
+                   (new Shader Shader.vertex vert-shader-string)
+                   (new Shader Shader.fragment fragment-shader-string))))
+
+
+  (init (.make-current context)
+        (.append-child document.body context.canvas))
+
+  ;; (def-generic resize (limit)
+  ;;   (assign this.limit limit))
+  (def-generic clear ())
+  (def-generic find ([x y z id] *tree)
+    (.find (ternary id [x y z id] [x y z])))
+
+  (def-generic insert ([x y z]  [ *available *inuse *verts *tree ])
+    (collect ( vert (.pop *available))
+
+             (.set *tree [x y z id] vert)
+             (.push *in-use vert)))
+
+  (def-generic render (context vertex-buffer program [u-res u-scale] count)
+    (.clear context)
+
+    (.bind vertex-buffer)
+
+    (.enable program)
+    (.enable u-res)
+    (.enable u-scale)
+
+    (.enable-gl-attributes Vertex)
+
+    (.draw context gl.POINTS 0 count)
+
+
+    (.disable-gl-attributes Vertex)
+
+    (.disable program)
+
+    ;; I think these were needed but not added to andy's examples.
+    (.disable u-res)
+    (.disable u-scale)
+
+    (.unbind vertex-buffer)))
+
+
+;; The approach to take is to directly replace the current layer object, so we need to develop a cocnept of layers from here.
+;; We will blend these with a color overlay, using the alpha channel as a multiplier
+
+;; (var layers [])
+
+;; (type Layer)
+
+;; (describe Layer
+;;           (init ((entities []) (*set (new Set))) (.push layers this))
+
+;;           (gmth add (entity entities)
+;;                 (.push entities entity))
+;;           (gmth remove ())
+;;           (gmth each ())
+;;           (gmth update (entities)
+;;                 (each entities (e)
+;;                       (var v (.get Vertex-field e.x e.y))
+;;                       (var color v.color)
+;;                       (assign color.r (Blend-mode.average e.r )
+;;                               color.g (Blend-mode.average e.g)
+;;                               color.b (Blend-mode.average e.b)
+;;                               color.a (Blend-mode.average e.a)
+;;                               )
+;;                       )))

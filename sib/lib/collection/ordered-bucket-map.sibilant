@@ -1,0 +1,30 @@
+(def-curried search  (value array) (.find array (=> (v) (= v value))))
+
+(def identity (a) a)
+
+(def search-if-given (value)
+  ((cond (-> (defined? value))
+         (search value)
+         identity)))
+
+(def-interface Ordered-bucket-map ((*buckets ((create Ordered-map))))
+  (def-generic set ([k v] *buckets )
+    (if (.has *buckets k)
+
+        (pipe *buckets (.get  k) (.push v))
+
+        (.push *buckets [k v])))
+
+  (def-generic get ([k value] *buckets)
+    (pipe (.get *buckets k)
+          (search-if-given value)
+
+          ))
+
+  (def-generic each (f *buckets)
+    (.each *buckets f))
+  (def-generic map (f *buckets)
+    (.map *buckets f))
+  (def-generic delete ([k value]))
+
+  )
