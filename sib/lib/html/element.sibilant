@@ -1,6 +1,4 @@
 
-(macro def-curried (name args ...body)
-       `(var @name (R.curry (=> @args ...@body))))
 
 (require! "http"
           Future "./lib/common/async"

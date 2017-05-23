@@ -1,0 +1,177 @@
+
+
+(require! R "ramda"
+          Path 'path)
+(var curry R.curry)
+
+(include "kit/macros"
+         "kit/inc/shell")
+
+(require! 'sibilant)
+
+(assign sibilant.dir "./sib/")
+
+(import-namespace kit)
+(import-namespace shell)
+
+
+(require! {spawn} "child_process"
+          "readline"
+          "fs")
+(def Array.prototype.each (f)
+  (.for-each this f)
+  this)
+(var open-depth 0
+     close-depth 0)
+
+(macro each-char-of (s ...body)
+
+       `(.for-each (pipe @s (.split "")) (=> (char) ...@body)))
+
+(def handle-include (socket  first-call)
+  (each (rest first-call.contents) (e)
+
+        (var path (resolve-included-file-path (eval e.token))
+             prev-sib-path sibilant.dir)
+
+        (assign sibilant.dir (Path.dirname path))
+
+        (var f (fs.read-file-sync  path "utf8" ))
+
+
+        (print "including" (eval e.token) "from" path)
+
+
+        (handle-line  socket f)
+
+        (assign sibilant.dir prev-sib-path)))
+
+(def-generic compile (socket (form (remember *forms lisp-fragment
+
+                                      (print ";;first time encountering form")
+
+                                      (pipe lisp-fragment sibilant ))))
+  (++i)
+  (print "count" i)
+  (print lisp-fragment)
+  (print form.js)
+
+  (assign lisp-fragment "")
+
+  (var first-call (try (first form.ast.contents)))
+
+  (var first-call-name (try (pipe first-call (get  'contents) first (get  'token))
+                            undefined))
+
+  (if (= first-call-name "include")
+
+      (handle-include socket first-call)
+
+      (socket.write (+ (pipe form (get 'js))
+                       "\n"))))
+
+(var electron-process (spawn "npm" ["start"] { stdio [null null null "ipc"] })
+
+     rl (readline.create-interface
+         {
+         input process.stdin
+         output process.stdout
+         })
+     rl-ready false)
+(.on electron-process 'exit process.exit)
+
+(electron-process.stdout.pipe process.stdout)
+(electron-process.stderr.pipe process.stderr)
+
+;; (var parens {
+;;      open 0
+;;      close 0
+;;      }
+;;      lisp-fragment "")
+
+;; (def build-message (line)
+;;   (each (.split line "") (char)
+;;         (if (= char "(")
+;;             (++ parens.open)
+;;             (= char ")")
+;;             (++ parens.close))))
+
+(require! "net")
+(var lisp-fragment "")
+
+(var *forms (new Map))
+(var i 0)
+(def resolve-included-file-path (file)
+
+  (unless (match-regex? file "\\.(sibilant|son)$")
+    (assign file (concat file ".sibilant")))
+
+  (when (match-regex? file "^\\.\\.?/")
+    (assign file (Path.resolve sibilant.dir file)))
+
+  (try (require.resolve file)
+       (throw (new Error ("Failed to resolve file for inclusion in secondary compiler: " file)))))
+
+(def-curried accumulate-lisp (socket msg)
+
+  (incr-by lisp-fragment (+ msg "\n"))
+
+  (loop (each-char-of msg)
+
+     (if (= char "(")
+         (++ open-depth)
+
+         (= char ")")
+         (++ close-depth)))
+
+
+  (when  (= open-depth close-depth)
+    (try (compile socket)
+         (print msg)
+         (print "failed to compile" e))))
+
+(def-curried handle-line (socket data)
+  (pipe (+ data "\n")
+        (.to-string)
+        (.split "\n")
+        (.for-each (accumulate-lisp socket))))
+
+(def start-readline (socket)
+
+  (print "client connected to repl")
+
+
+  (.resume rl)
+
+  (.pipe socket process.stdout)
+
+  (on socket "close"  ()
+
+      (print "readline closed")
+
+      (.remove-all-listeners rl "line")
+      (.pause rl))
+
+  (.on socket 'data (handle-line socket))
+
+  (.on rl "line" (handle-line socket)))
+
+(macro var-pipe (name ...pipe-body)
+       `(var @name (pipe ...@pipe-body)))
+
+(var-pipe readline-server net
+
+          (.create-server start-readline)
+          (.listen  8120))
+;; (var readline-server (pipe net
+;;                            (.create-server start-readline)
+;;                            (.listen  8120)))
+
+;; (on (.watch chokidar "./apps/") "all" (event path stats))
+
+
+(unless rl-ready
+
+  (assign rl-ready true)
+
+  (print "readline done loading"))

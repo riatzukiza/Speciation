@@ -1,4 +1,5 @@
 (meta
+ (namespace kit)
 
  (macro transpile-name (name)
         `(get (sibilant (get (first (get @name "contents")) 'token)) 'js))

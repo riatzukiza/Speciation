@@ -25,16 +25,80 @@
                  (set types  symbol m)
                  (if build (.build ext ))))))
 
+(macro loose-var (...body)
+       (bulk-map body (=> (name value )
+                          (if (dotted? name)
+                              `(assign @name @value)
+                              `(var @name @value)))))
 
-(macro def-interface (name args ...body)
+(meta
 
-       (var init-body `(init @ args
-                               ...@(pipe body
-                                         (.find  (=> (el) (= (get (first el.contents ) 'token) "init")))
-                                         (or {contents []})
-                                         (get 'contents)
-                                         rest)))
+ ;; I never like letting these functions sit here for long if I can.
+ ;; and thus now the functions no longer siteth!
 
-       `(var @name (.define Interface (quote @name)
-                            (lit @init-body
-                                 ...@ (.filter body (=> (el) (not (= (get (first el.contents ) 'token) "init"))))))))
+ ()
+
+ (var init-form   (fpipe (get 'contents)
+                         first
+                         (get  'token)
+                         (=  "init")))
+ (def-pipe init-form ()
+   (get 'contents)
+   first
+   (get  'token)
+   (=  "init"))
+
+
+ (var not-init (fpipe init-form not ))
+
+ (def-pipe not-init () init-form not)
+
+ (var find-init-form (fpipe (.find  init-form) (or {contents []}) (get 'contents) rest))
+
+ (var find-init-form (fpipe (.find  init-form)
+                            (or {contents []})
+                            (get 'contents)
+                            rest))
+
+ (def-pipe find-init-form ()
+   (.find  init-form)
+   (or {contents []})
+   (get 'contents)
+   rest)
+
+ ;; Its not always obvious what is happening inside of code, my code, your code, any code at all.
+ ;; There will always be confusion, and only similarity if our languages overlap.
+ ;; If we can speak the same language, then we can work together.
+
+ ;; No one speaks code well.
+
+
+ ;; but we all speak our native language quite well, and most of us can be made
+ ;; to learn new languages quiet quickly,
+ ;; what with programming languages being so complex
+ ;; to learn about in the first place, a language is a language.
+
+
+ ;; So I say what I have to in the comments. What I was thinking as I did this,
+ ;; I some times wonder, and only if they had told me, maybe I'd never have had to seen it.
+
+ (def create-interface (name args body)
+
+   (let ((init-body `(init @ args ...@(find-init-form body)))
+
+         (lit-args (.filter body not-init)))
+
+     `(.define Interface (quote @name) (lit @init-body ...@ lit-args))))
+
+ (def-let create-interface (name args body)
+
+   ((init-body `(init @ args ...@(find-init-form body)))
+
+    (lit-args (.filter body not-init)))
+
+   `(.define Interface
+             (quote @name)
+             (lit @init-body ...@ lit-args)))
+
+ (def macros.def-interface (name args ...body)
+   `(loose-var @name @(create-interface name args body))))

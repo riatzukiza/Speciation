@@ -9,11 +9,11 @@
 (import-namespace kit)
 (import-namespace shell)
 
-(include "../fp")
 
 (require! {spawn} "child_process"
           "readline"
           "fs")
+
 (var electron-process (spawn "npm" ["start"] { stdio [null null null "ipc"] })
 
      rl (readline.create-interface

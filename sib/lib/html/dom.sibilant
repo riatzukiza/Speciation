@@ -21,7 +21,6 @@
 
 ;; (specify Document (extend Event-emitter.prototype))
 
-(alias-macro def-description def-describe)
 (def-interface Document-node
     (tag-name
      attributes

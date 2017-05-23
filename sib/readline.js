@@ -44,12 +44,16 @@ var getValueOf = (function getValueOf$(o) {
 var sibilant = require("sibilant"),
     net = require("net"),
     vm = require("vm");
+
+
 global._sibilant = sibilant;
 global.module = module;
 global.require = require;
 global.exports = exports;
-var i = 0
-var readlineSocket = net.connect(8120, "70.178.227.120",() => {
+
+var i = 0;
+
+var readlineSocket = net.connect(8120, "localhost",() => {
 
     console.log("connected to repl");
     readlineSocket.write("(include \"./index.sibilant\")");

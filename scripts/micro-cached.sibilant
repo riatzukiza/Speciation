@@ -1,0 +1,23 @@
+(require! R "ramda"
+          Path 'path)
+(var curry R.curry)
+
+(include "kit/macros"
+         "kit/inc/shell")
+
+
+(require! {spawn} "child_process"
+          "readline"
+          "net"
+          "fs")
+
+(var processes [])
+
+;; We will expect all children of this process to have the same stream values
+(def spawn-child (cmd args )
+  (var proc (spawn cmd args { stdio [null null null "ipc"] }))
+  (.push processes proc)
+  proc)
+
+
+(def connect ())

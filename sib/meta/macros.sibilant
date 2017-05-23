@@ -105,7 +105,7 @@
 
 
 (macro def-curried (name args ...body)
-       `(var @name (curry (lambda @args ...@body))))
+       `(var @name (R.curry (lambda @args ...@body))))
 
 (macro def-generic (name args ...body)
        `(generic @name (def) @args ...@body))
@@ -146,8 +146,6 @@
        `(for! ( @index-name 0) (< @index-name @limit ) (++ @index-name)
             ...@body))
 
-
-(require! (literal create extend mixin)  "../../util")
 
 
 

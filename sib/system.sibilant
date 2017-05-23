@@ -93,7 +93,8 @@ void main(void)
   ( *type Vertex )
   (*gl Vertex-context)
 
-  (def-generic *insert (([[x y z] [r g b a]] [[] []])  [ *available *in-use  *tree ])
+  (def-generic *insert
+      (([[x y z] [r g b a]] [[] []])  [ *available *in-use  *tree ])
     (collect  member (.pop *available)
 
               ;; (print *available this.*members [[x y z] [r g b a]] member)

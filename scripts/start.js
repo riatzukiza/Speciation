@@ -28,6 +28,7 @@ app.on('ready', () => {
         frame: true
     });
 
+    console.log("starting at",__dirname);
     Window.loadURL(`file://${__dirname}/../index.html`);
     Window.webContents.openDevTools();
 
