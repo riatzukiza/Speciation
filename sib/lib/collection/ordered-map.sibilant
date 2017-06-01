@@ -1,5 +1,6 @@
 (def-lit-macro gett-tuple (name ...keys)
   `(gett @name [...@(.map keys (=> (k) `(get this @k)))]))
+
 (def-interface Ordered-map ((*members (new Map)) ;; {a:5,b:6,c:10}
 
                             (*key-pointers (new Map)) ;; {a:0,b:1,c:2}
@@ -8,13 +9,11 @@
                             (*values []) ;; [ 5 6 10 ]
                             )
 
-  (gett-tuple  *members *keys *values)
-
   (def-generic has (key [*members])
 
-    (.has *members k))
+    (.has *members key))
 
-  (def-generic get (key )
+  (def-generic get (key [*members _ *keys])
     (.get *members key))
 
   (def-generic each (callback *values)

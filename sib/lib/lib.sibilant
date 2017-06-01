@@ -14,8 +14,14 @@
 
 
 (require! (lit Matrix  Matrix-view Kernel ) "kit/sib/matrix"
-          (lit Tree-map) "kit/sib/data-structures"
-          )
+          (lit Tree-map) "kit/sib/data-structures")
+
+(var matrix (create Matrix))
+(var kernel (create Kernel))
+
+(var matrix-view (create Matrix-view))
+
+(var tree-map (create Tree-map))
 
 (include "./state-space.sibilant")
 

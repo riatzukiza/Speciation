@@ -1,0 +1,173 @@
+
+(namespace speciation-main)
+
+(require! R "ramda"
+          Path 'path)
+
+(include "kit/macros"
+         "kit/inc/shell")
+(require! 'sibilant)
+(assign sibilant.dir "./app/sib/")
+
+(import-namespace kit)
+(import-namespace shell)
+
+
+(require! {spawn} "child_process"
+          "readline"
+          "fs")
+(def Array.prototype.each (f)
+  (.for-each this f)
+  this)
+(var open-depth 0
+     close-depth 0)
+
+(macro each-char-of (s ...body)
+
+       `(.for-each (pipe @s (.split "")) (=> (char) ...@body)))
+
+(var electron-process (spawn "npm" ["start"] { stdio [null null null "ipc"] })
+
+     rl (readline.create-interface
+         {
+         input process.stdin
+         output process.stdout
+         })
+     rl-ready false)
+(.on electron-process 'exit process.exit)
+
+(electron-process.stdout.pipe process.stdout)
+(electron-process.stderr.pipe process.stderr)
+
+;; (var parens {
+;;      open 0
+;;      close 0
+;;      }
+;;      lisp-fragment "")
+
+;; (def build-message (line)
+;;   (each (.split line "") (char)
+;;         (if (= char "(")
+;;             (++ parens.open)
+;;             (= char ")")
+;;             (++ parens.close))))
+
+(require! "net")
+(var lisp-fragment "")
+
+(var *forms (new Map))
+
+(def start-readline (socket)
+
+  (print "client connected to repl")
+
+  (def accumulate-lisp (msg)
+
+    (incr-by lisp-fragment (+ msg "\n"))
+
+    (loop (each-char-of msg)
+
+       (if (= char "(")
+           (++ open-depth)
+
+           (= char ")")
+           (++ close-depth)))
+
+    (def resolve-included-file-path (file)
+
+      (unless (match-regex? file "\\.(sibilant|son)$")
+        (assign file (concat file ".sibilant")))
+
+      (when (match-regex? file "^\\.\\.?/")
+        (assign file (Path.resolve sibilant.dir file)))
+
+      (try (require.resolve file)
+           (throw
+               (new Error
+                    ("Failed to resolve file for inclusion in secondary compiler: "
+                     file)))))
+
+    (when  (= open-depth close-depth)
+
+      ;; The use of a let says to me, usually, that this thing can be pulled out
+      ;; and abstracted at least into a function, maybe an object.
+      ;; depending on if I want the form to provide a public interface
+      (let ((form (remember *forms lisp-fragment
+                            (print "first time encountering form" lisp-fragment)
+                            (pipe lisp-fragment sibilant ))))
+
+        (assign lisp-fragment "")
+
+        (var first-call (try (pipe
+
+                              form.ast.contents
+                              first
+                              )))
+        (var first-call-name (try
+                              (pipe first-call
+                                    (get  'contents)
+                                    first
+                                    (get  'token))
+                              undefined))
+
+
+        (if (= first-call-name "include")
+            (each (rest first-call.contents) (e)
+
+                  (var path (resolve-included-file-path (eval e.token)))
+
+                  (print "including" (eval e.token) "from" path)
+
+                  (var prev-sib-path sibilant.dir)
+
+                  (assign sibilant.dir (Path.dirname path))
+
+                  (var f (fs.read-file-sync  path "utf8" ))
+                  (handle-line  f)
+                  (assign sibilant.dir prev-sib-path))
+            (do 
+             (var js (+ (pipe form (get 'js)) "\n"))
+             (print js)
+             (socket.write js))))))
+
+  (def handle-line (data)
+    (pipe (+ data "\n")
+          (.to-string)
+          (.split "\n")
+          (.for-each accumulate-lisp)))
+
+  (.resume rl)
+
+  (.pipe socket process.stdout)
+
+  (on socket "close"  ()
+
+      (print "readline closed")
+
+      (.remove-all-listeners rl "line")
+      (.pause rl))
+
+  
+
+  (.on socket 'data handle-line)
+
+  (.on rl "line" handle-line))
+
+(macro var-pipe (name ...pipe-body)
+       `(var @name (pipe ...@pipe-body)))
+(var-pipe readline-server net
+
+          (.create-server start-readline)
+          (.listen  8120))
+;; (var readline-server (pipe net
+;;                            (.create-server start-readline)
+;;                            (.listen  8120)))
+
+;; (on (.watch chokidar "./apps/") "all" (event path stats))
+
+
+(unless rl-ready
+
+  (assign rl-ready true)
+
+  (print "readline done loading"))

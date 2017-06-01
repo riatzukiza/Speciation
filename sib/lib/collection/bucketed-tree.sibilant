@@ -1,35 +1,7 @@
-(def-interface Bucketed-tree ((value [])
-                              parent
-                              (*children ((create Ordered-map))))
+(def-interface Bucketed-tree
+    ((value [])
+     parent
+     (*children ((create Ordered-map))))
   (extend Tree-map)
+  )
 
-  (def-generic *find (seq
-                      (tree this)
-                      (*children tree.*children)
-                      (key (first seq))
-
-                      (node (*children.get key)))
-
-    (if node (.find node (rest seq)) false))
-
-  (def-generic *insert
-      (seq
-       *children
-
-       *keys
-
-       ;; don't use primatives here, that would probably be bad.
-       *values
-
-       (tree this)
-       (key (first seq))
-       (node (.add tree (first seq))))
-
-
-    (*keys.push key)
-    (*children.set key node ) node)
-
-  (def-generic set (seq value (tree this) *values)
-    (var bucket (.insert tree  seq))
-    (.push *values value)
-    (.push bucket.value value)))

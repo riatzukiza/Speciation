@@ -1,7 +1,10 @@
 (def-interface Tree-map (value parent (*children (new Map)))
 
-  (extends Tree)
+  (extend Tree)
 
+  (def-generic delete (seq (tree this) )
+    (find)
+    )
   (def-generic *find (seq (tree this) (*children tree.*children) (node (*children.get (first seq))))
 
     (if node (.find node (rest seq)) false))

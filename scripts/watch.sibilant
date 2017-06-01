@@ -1,0 +1,22 @@
+(include "kit/macros")
+
+(import-namespace kit)
+
+(include "kit/header")
+;; I have no idea why this function doesn't seem to work unless its at the head of the file it is being used with recently....
+
+;; What has changed exactly...?
+;; (macro generic (name def args ...body)
+;;        `(...@(content-of def) @name
+;;             (...@(functor (content-of args) .map (arg)
+
+;;                           (if (expression? arg)
+;;                               `(default @(first (content-of arg)) @(second (content-of arg)))
+;;                               (or (brace? arg)
+;;                                   (bracket? arg))
+;;                               `(default @arg [...@(.map arg.contents
+;;                                                         (lambda (varname)
+;;                                                           `(get this (quote @varname))))])
+;;                               `(default @arg (get this (quote @arg))))))
+;;             ...@body))
+(require! (lit File-system) "kit/sib/file-system")

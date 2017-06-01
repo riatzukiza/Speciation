@@ -43,7 +43,6 @@
 
           ]))
 (var average-kernel (.mult count-kernel (/ 1 9)))
-(assign average-kernel.convolve Kernel.convolve)
 
 
 (macro alias (name object) `(gett @name (get @object (quote @name))))

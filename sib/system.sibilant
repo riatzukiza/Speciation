@@ -6,6 +6,17 @@
 
 (var Vertex (new Type.Composite (lit (point Type.Vector3) (color Color))))
 
+(def Array.bind (a f)
+  (collect r [] (.reduce a (=> (r e i) (each (f e i) (x) (.push r x))))))
+
+(meta (def Array.bind (a f)
+        (.reduce a (=> (r e i)
+                       (each (f e i) (x)
+                             (.push r x)) r) []))
+      (print (Array.bind [1 2 3 4 5 6] (=> (n) [n (+ n 1)]))))
+(macro sprint (...args)
+
+       `(print ...@(Array.bind args (=> (a) [`(quote @a) a]))))
 
 (var vert-shader-string ("#version 300 es
 in vec3 a_point;
@@ -39,7 +50,7 @@ void main(void)
 
 
 
-(include "./bucketed-tree.sibilant")
+;;(include "./bucketed-tree.sibilant")
 
 (def-interface System
     (limit
@@ -68,7 +79,10 @@ void main(void)
   (def-generic clear ())
 
   (def-generic remove (key-sequence *tree)
+    ;; what?
     (.find (value-of (.find *tree key-sequence ) )))
+  (def-generic delete (keys *tree)
+    (.delete *tree keys))
 
   (def-generic find (key-sequence *tree)
     (get (.find *tree key-sequence) 'value))
@@ -96,8 +110,11 @@ void main(void)
   (def-generic *insert (([[x y z] [r g b a]] [[] []])  [ *available *in-use  *tree ])
     (collect  member (.pop *available)
 
-              ;; (print *available this.*members [[x y z] [r g b a]] member)
-              (.set *tree [x y z]  member)
+              (sprint *available
+                      this.*members
+                      member)
+
+              (.set *tree [x y z ]  member)
 
               (set-for member.point x y z)
               (set-for member.color r g b a)
@@ -110,6 +127,6 @@ void main(void)
     (.render this.*gl *in-use)))
 
 
-;; (def-interface Vertex-context (*height *width  *gl *type)
+ ;; (def-interface Vertex-context (*height *width  *gl *type)
 ;;   (*gl Vertex-field-context)
 ;;   (init (.call Vertex-system.init this (* *height *width) )))
