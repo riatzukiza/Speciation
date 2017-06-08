@@ -2,6 +2,9 @@
 
 (import-namespace kit)
 
+(comment "It is about time I moved some of these includes into require statements.
+
+one at a time.")
 (macro in ( k o) [k " in " o])
 (macro generic (name def args ...body)
        `(...@(content-of def) @name
@@ -16,12 +19,10 @@
                                                           `(get this (quote @varname))))])
                               `(default @arg (get this (quote @arg))))))
             ...@body))
+
 (macro instance-of? (item type) ["("  type " " 'instanceof " " item ")"])
 
-(include "./headers"
-
-         )
-
+(include "./headers")
 
 (include "./ticker")
 
@@ -34,8 +35,6 @@
 (include "./lib/collection/ordered-bucket-map.sibilant")
 (include "./lib/collection/bucketed-tree.sibilant")
 
-(print average-kernel)
-(print count-kernel)
 
 
 
@@ -102,7 +101,6 @@
 ;;         (.filter  (=> (s) (not (= s current-system))))
 ;;         (each (s) (.update s.field))))
 (def update-on-beat-field (current-system ticks)
-
   "calculate the values for the system that is said to currently be active. Systems are updated one
 at a time, one per tick,so that updates to each can make changes to each. Values of each system will
 be integrated for the time missing between each of their updates."
@@ -139,7 +137,7 @@ be integrated for the time missing between each of their updates."
 ;;(include "./gl/gl.sibilant")
 
 (include "./game/components.sibilant")
-(include "./game/entities")
+(include "./game/entity-system")
 
 (include "./game/starting-entities")
 
@@ -153,7 +151,7 @@ be integrated for the time missing between each of their updates."
 
 ;; (sprint (.find vert-sys [10 10 0 998]))
 
-;; ;; And this is where our stream starts.
+
 ;; ;; Dot wasn't working till shortly before we started.
 
 ;; (def move (loc dest tree)
@@ -168,11 +166,22 @@ be integrated for the time missing between each of their updates."
 
 ;; (print  Bucketed-tree)
 
+(var lagged-ticks 0)
 (pipe Ticker
-      (.init  1)
+      (.init  5)
       (.start )
       (.remove-all-listeners 'tick)
 
-      (.on 'tick (=> (now tick)  (print "tick" now tick)(update-game tick))))
+      (.on 'tick (=> (now tick)
+
+                     (if (> Ticker.elapsed (* Ticker.rate 3 ))
+                         (do (incr lagged-ticks)
+                             (print "game is lagging" Ticker.elapsed "is greater than" Ticker.rate "for" lagged-ticks "ticks")
+                             (if (> lagged-ticks 20)
+                                 (do "resetting from lag"
+                                     (initialize-game))))
+                         (assign lagged-ticks 0))
+
+                     (update-game tick))))
 
 

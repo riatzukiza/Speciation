@@ -21,7 +21,7 @@
 
           (gett a (percent-to-color 0.2)))
 
-(def-memoized solar-intensity (x y rate dampening mid x-skew y-skew)
+(def solar-intensity (x y rate dampening mid x-skew y-skew)
   (inverse-square rate     ;;(Math.abs (* rate (/  mid (+ 1 (Math.abs (- mid x))))))
                   dampening
 

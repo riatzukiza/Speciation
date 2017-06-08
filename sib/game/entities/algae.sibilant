@@ -1,0 +1,64 @@
+
+(def-interface Algae  (x y components)
+
+  (extend Entity)
+
+  (r 0)
+  (g 255)
+  (b 0)
+
+  (a 255)
+
+  (init (.call Entity.init this  x y components)
+        (on this "death" (entity)
+
+            (require-components
+             entity
+
+             (Hydration
+              Calories
+              Nutriants)
+             ;;(print Health Nutriants Calories Hydration)
+
+             (set entity 'r 128 'g 100 'b 80)
+
+             (assign entity.components
+                     [
+                      Hydration
+                      ;;Calories
+                      Nutriants
+                      Nutriant-emitter
+                      Water-emitter
+                      Decaying
+
+                      ])
+
+             (.call Entity.init entity ))))
+
+  (components
+
+   [
+    Health
+    Water-absorbtion
+    Photoreceptor
+    Nutriant-absorber
+
+
+    Mitosis
+
+    ;; ;; base life form stuff
+
+    (create-instance-of Nutriants this)
+    Calories
+
+    ;; Hydration reduces the amount of energy required to perform most actions.
+    ;; resulting in less damage taken
+
+    Hydration
+
+
+    Natural-healing
+
+    ]))
+
+(assign Algae.system ((create Entity-system) 10000 Algae))

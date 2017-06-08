@@ -6,6 +6,7 @@
 (type Location (init (x y (layers []))))
 
 (specify Simulation (extend Event-emitter.prototype)
+
          ;; This part of the program should just be
          ;; a top level object which manages communications between
          ;; other systems.

@@ -87,7 +87,9 @@
 
 (var specific-heat 4.186)
 (var dHvap 2257 )
+
 (var R* 8.3145)
+
 (var coriolis-kernel
      (.mult (kernel 3 3
                     [

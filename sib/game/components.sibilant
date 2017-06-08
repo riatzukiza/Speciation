@@ -43,7 +43,9 @@
              (when (and (<= Hydration.value 0)
                       (<= Nutriants.value 0))
                ;;(print "completely decayed")
-                 (.remove entity)))))
+               (if entity.despawn
+                   (.despawn entity)
+                   (.remove entity))))))
 
 (type Field-emitter )
 (describe Field-emitter

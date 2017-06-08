@@ -4,6 +4,9 @@
       (property symbols {})
       (property types {}))
 
+(def Interface.create ()
+  ((create this) (dots arguments)))
+
 (def Interface.define
     (name (default obj {})
           (default shares (or obj.shares []))
@@ -24,7 +27,9 @@
         (collect m (extend  ext (mixin  [(lit name symbol) (dots shares)] obj))
                  (set symbols name symbol)
                  (set types  symbol m)
-                 (if build (.build ext ))))))
+                 (when m.build
+                   (print "attempting to build interface" build)
+                   (.build m ))))))
 
 
 (macro def-interface (name args ...body)

@@ -55,6 +55,13 @@ const List = {
     get empty() {
         return this.length === 0;
     },
+    from (arrayLike,fn = (a) => a) {
+
+        return create(this)(...arrayLike.map(fn));
+    },
+    of(...items) {
+        return create(this)(...items);
+    },
 
     // item based operations //////////////////////////////////////////////////
     push(item) {

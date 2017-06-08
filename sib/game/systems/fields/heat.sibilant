@@ -39,6 +39,16 @@
                 (var heat value)
                 (var net (net-heat retention gain loss influences neiborhood))
 
+                (unless (is-finite heat)
+                  (print "heat value failiure" heat)
+                  (throw (new Range-error "heat is is not finite")))
+
+                (unless (is-finite net)
+
+                  (print "infinite value detected" (lit retention gain loss influences neiborhood net))
+
+                  (throw (new Range-error "heat is is not finite")))
+
 
                 ;; (var average-heat (.convolve  average-kernel (get (.get Heat x y) 'neiborhood)))
 
@@ -54,7 +64,7 @@
 
 
 
-(def-memoized net-heat (retention gain loss influences neiborhood)
+(def net-heat (retention gain loss influences neiborhood)
   (var net (+  (* retention gain (summate influences)) (*convolve  average-kernel neiborhood)))
   (if (> net loss) (- net loss) 0))
 

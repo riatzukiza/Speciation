@@ -1,25 +1,34 @@
 
 (specify Entity (extend Event-emitter.prototype))
 
+;; (def-interface Entity.Pool ())
+
+;; (def-interface Entity.System ())
+
+
 (describe Entity
 
           (layer (.get sim.layers))
+
+          (pools (new Map))
+
 
           (init (x y components)
 
                 (if (not (.has Collision [x y]))
                     (do (.set Collision [x y] this)
 
-                     (.add  this.layer this)
-                     (.push entities this)
-
-                     (assign this.components
-                             (pipe components (.map (=> (T) (set this T.symbol (create-instance-of T this)))))) 
+                        (.add  this.layer this)
+                      (assign this.components (.map components
+                                                    (=> (T) (set this T.symbol (create-instance-of T this)))))
 
                       (set this 'spawned? true))
                     (do (set this 'spawned? false))))
 
+
           (mth move ([x y]) (.move Collision [x y] this))
+
+
 
           (gmth remove ((entity this) layer)
                 (assign entities (R.without [entity] entities))
@@ -30,7 +39,8 @@
                 (each components (comp)
 
 
-                      (.update comp))))
+                      (.update comp this))))
+
 
 
 (specify Algae (extend Entity))
@@ -95,4 +105,5 @@
            Natural-healing
 
            ]))
+
 (print entities.length)

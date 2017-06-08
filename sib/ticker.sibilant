@@ -23,7 +23,7 @@
 
         (++ this.ticks)
 
-        (assign this.previous (- now (mod this.elapsed rate)))
+        (assign this.previous now)
 
         (this.emit 'tick now this.ticks))) this)
 

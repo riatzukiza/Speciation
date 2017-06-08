@@ -25,14 +25,12 @@
 
  (def global.lit-macros (el)
 
-   (print el)
 
 
    (if (expression? el)
 
        (do (var name (transpile-name el))
 
-           (print "it was an expression" name lit-macros)
          (if (and (literal? (first el.contents))
                   (has-key? lit-macros name))
 

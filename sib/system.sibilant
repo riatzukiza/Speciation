@@ -52,6 +52,8 @@ void main(void)
 
 ;;(include "./bucketed-tree.sibilant")
 
+;; There is an object pool embeded in this object.
+;; this type can be simplified by pulling it out.
 (def-interface System
     (limit
 
@@ -65,8 +67,7 @@ void main(void)
      (systems {})
 
 
-     (*available (.map ( Array.from *members)
-                       (=> (m k) (assign  m.id k) m)))
+     (*available (.map ( Array.from *members) (=> (m k) (assign  m.id k) m)))
      (*in-use []))
 
 

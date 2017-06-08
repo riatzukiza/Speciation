@@ -100,7 +100,9 @@
              (.remove Nutriants (/ Hydration.value 2))
              (.remove Calories (/ Hydration.value 2))
 
-             (create-instance-of Algae (find entity.x (first loc)) (find entity.y (second loc)))))
+             (if Algae.spawn
+                 (.spawn Algae (find entity.x (first loc)) (find entity.y (second loc)))
+                 (create-instance-of Algae (find entity.x (first loc)) (find entity.y (second loc))))))
 
           ;; find out what that closed system thing is in thermodynamics, there should be an example of it some where in the junk.
 
