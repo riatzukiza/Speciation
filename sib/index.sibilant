@@ -2,9 +2,8 @@
 
 (import-namespace kit)
 
-(comment "It is about time I moved some of these includes into require statements.
+(comment "It is about time I moved some of these includes into require statements, one at a time.")
 
-one at a time.")
 (macro in ( k o) [k " in " o])
 (macro generic (name def args ...body)
        `(...@(content-of def) @name
@@ -37,6 +36,7 @@ one at a time.")
 
 
 
+(include "./events")
 
 
 (macro def-description (name args ...body)
@@ -62,6 +62,7 @@ one at a time.")
 (var container (dom (.div .id "container" stage Vertex-system.*gl.context.canvas)))
 
 (with-dom Document-root (.div .id 'frame container))
+
 (include "./simulation.sibilant")
 (var sim ( (create Simulation) 30 100 8))
 (assign global.sim sim)
@@ -132,16 +133,12 @@ be integrated for the time missing between each of their updates."
 
 (include "./game/systems.sibilant")
 
-(each systems (s) (.populate s))
-(var entities [])
 ;;(include "./gl/gl.sibilant")
 
 (include "./game/components.sibilant")
 (include "./game/entity-system")
 
 (include "./game/starting-entities")
-
-
 
 
 ;; (var vert-sys ((create Vertex-system) 1000))
@@ -166,9 +163,11 @@ be integrated for the time missing between each of their updates."
 
 ;; (print  Bucketed-tree)
 
+(each systems (s) (.populate s))
+
 (var lagged-ticks 0)
 (pipe Ticker
-      (.init  5)
+      (.init  10)
       (.start )
       (.remove-all-listeners 'tick)
 
@@ -176,6 +175,7 @@ be integrated for the time missing between each of their updates."
 
                      (if (> Ticker.elapsed (* Ticker.rate 3 ))
                          (do (incr lagged-ticks)
+
                              (print "game is lagging" Ticker.elapsed "is greater than" Ticker.rate "for" lagged-ticks "ticks")
                              (if (> lagged-ticks 20)
                                  (do "resetting from lag"

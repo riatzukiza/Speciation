@@ -25,6 +25,7 @@
 
 
 (def moore (x y field) ((create Matrix-view) field 3 3 [ (- x 1) (- y 1) ]))
+
 (var count-kernel (kernel 3 3
                           [
 
@@ -69,10 +70,10 @@
        `(< @value 0))
 
 (include "./systems/fields/sun"
-         "./systems/fields/heat"
-         "./systems/fields/light"
-         "./systems/fields/simple-water"
-         "./systems/fields/silt"
+         "./systems/fields/heat" ;; 0
+         "./systems/fields/light" ;; 1
+         "./systems/fields/simple-water" ;; 2
+         "./systems/fields/silt" ;; 3
          "./systems/collision"
          )
 

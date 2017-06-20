@@ -100,9 +100,7 @@
              (.remove Nutriants (/ Hydration.value 2))
              (.remove Calories (/ Hydration.value 2))
 
-             (if Algae.spawn
-                 (.spawn Algae (find entity.x (first loc)) (find entity.y (second loc)))
-                 (create-instance-of Algae (find entity.x (first loc)) (find entity.y (second loc))))))
+             (.spawn Algae (find entity.x (first loc)) (find entity.y (second loc)))))
 
           ;; find out what that closed system thing is in thermodynamics, there should be an example of it some where in the junk.
 
@@ -118,7 +116,12 @@
               Calories
               Nutriants)
 
-             ;;(print Health Nutriants Calories Hydration)
+             ;;(print "updating mitotic spindles")
+
+             ;; (sprint Health)
+             ;; (sprint Nutriants)
+             ;; (sprint Calories)
+             ;; (sprint Hydration)
 
              (let ((chance-to-divide (prob-prod [Health Hydration Calories Nutriants]))
                    (random (Math.random)))

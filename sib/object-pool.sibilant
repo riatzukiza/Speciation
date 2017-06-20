@@ -49,6 +49,10 @@
   (gett used this.*in-use.size)
   (gett total this.*members.size)
 
+  (def-generic clear (size *interface *array *in-use)
+    (each *in-use (o)
+          (.clear o))
+    (.init this size *interface *array))
 
   (def-generic aquire ( *available *members *in-use )
     "remove an object from the collection of available ones,

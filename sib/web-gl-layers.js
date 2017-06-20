@@ -200,8 +200,10 @@ class Layer extends Set {
         return super.add(value);
     }
     delete(value) {
-        this.lset.decEntityCount()
-        return super.delete(value);
+        if(super.delete(value)) {
+            this.lset.decEntityCount()
+            return true
+        } return false;
     }
     clear() {
         this.lset.clearEntityCount(this.size);

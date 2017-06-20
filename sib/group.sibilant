@@ -12,6 +12,7 @@
      (*members (new Map)))
 
   (gett size this.*list.length)
+  (gett length this.*list.length)
 
   (def create ()
     "create an empty group instance"
@@ -33,7 +34,6 @@ See the native `Array.of` static method."
     "remove and return the element last in the groups ordering."
     (collect item (.pop *list)
 
-             (print "popping from group" item)
              (.delete *members item)))
 
   (def-generic push (value)

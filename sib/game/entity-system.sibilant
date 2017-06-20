@@ -4,7 +4,6 @@
 (def singleton ()
   "A builder function for instantiating interfaces
 who are to only have one instance, them selves."
-  (print "building pooled system" this)
   (.init this))
 ;; Last, but not least, this is where we finally make use of the object pool.
 ;; The Pooled system is a template instance, which we will use to build our entity system,
@@ -12,9 +11,7 @@ who are to only have one instance, them selves."
 
 
 (def-interface Pooled-system
-    (limit
-     (interface (lit (def init ())))
-     (*pool ((create Object-pool) limit interface)))
+    (limit interface (*pool ((create Object-pool) limit interface)))
 
   (limit 10000)
 
@@ -22,32 +19,36 @@ who are to only have one instance, them selves."
 
   (systems (new Map))
 
-  (def spawn ()
+  (def-generic clear (*pool)
+    (each *pool.*in-use (e) (.despawn e))
+    (.clear *pool))
+
+  (def spawn ((dots args))
     "aquire an object from the systems pool, and initialize it."
-    (print "spawning from" this arguments)
     (collect r (pipe this.*pool (.aquire))
-             (print "spawning" r)
-             (.init r (dots arguments))
+             (.init r (dots args))
              ))
 
   (def despawn (obj)
     "remove an object from the system, and release it back into the pool."
 
-    (pipe this.*pool (.release (.clear obj))))
+    ;;(print "despawn?" obj)
+    (.clear obj)
+    (pipe this.*pool
+          (.release obj)))
 
   (def register (interface)
-    "Associate an interface with a system, and add the system to the collection of all active systems."
+    "Associate an interface with a system, and add the system
+to the collection of all active systems."
     (assign interface.system this)
-
-    (print "registering" interface "with" this)
 
     (.set this.systems this this))
 
   (def update ()
+
     "update every active member of the system"
 
     (each this.*pool.*in-use (member)
-          (print "member" member)
           (.update member))))
 
 ;; I want to remove the position, color, and collision aspects of an entity from the
@@ -57,63 +58,77 @@ who are to only have one instance, them selves."
 
 ;; But this will work for now.
 
-(def-interface Entity  (x y components)
-  (extend Event-emitter.prototype)
+(var entity-layer (.get sim.layers))
+
+(def-interface Entity  (x y aspects)
+
+
+  (gett aspects   (console.trace "aspect gotten" this.aspect) this.aspect)
+  (sett aspects a (console.trace "setting aspect from" this.aspect "to" a) (assign this.aspect a))
 
   (init
 
+   (assign this.event (new Event-emitter))
    (if (not (.has Collision [x y]))
        (do (.set Collision [x y] this)
 
-           (.call Event-emitter this)
 
            (.add  this.layer this)
+         (assign this.*spawned true)
 
-         (assign this.components (.map components (=> (T) (set this T.symbol (create-instance-of T this))))))
+         (assign this.components
+                 (.map aspects (=> (T) (set this T.symbol (create-instance-of T this)))))
 
-       (.despawn this)))
+         ;;;(print "initializing entity" this)
+         )
 
-  (layer (.get sim.layers))
+       (do (assign this.*spawned true)
+           ;;(print "there was a collision" this)
+           (.despawn this))))
+
+  (layer entity-layer)
 
   (def spawn ()
     "Aquire an empty entity instance, and initialize it."
 
-    (print "spawning entity" this)
 
     (.spawn this.system (dots arguments)))
 
   (gmth clear ((entity this) layer)
+        "remove an entity from the system, and clear its component list."
 
-        (.delete Collision [this.x this.y])
+
+        ;;(print "clearing" entity)
+        (.delete Collision [entity.x entity.y])
         (.delete layer entity)
+        (.remove-all-listeners entity.event "error")
 
-        (assign this.components []))
+        (assign entity.event null
+                entity.*spawned false)
+
+
+        (assign entity.components [])
+        ;;(print "cleared" entity)
+        entity)
 
   (def despawn ()
 
     "Remove this entity from the system."
 
-    (.despawn this.system this))
+    (when this.*spawned
+      (.despawn this.system this))
+    this)
 
-  (def clear (entity)
-    "remove an entity from the system, and clear its component list."
-
-    (each this.components (comp)
-          ;; (.despawn comp)
-          ))
 
   (gmth update (components)
         "update every component of this entity in order of appearance."
-        (each components (comp)
-
-
-              (.update comp this))))
+        (each components (comp) (.update comp this))))
 
 (def-interface Entity-system (limit)
 
   (extend Pooled-system)
 
-  (init (.init Pooled-system))
+  (init (.call Pooled-system.init this limit this.interface))
 
   (interface Entity)
 

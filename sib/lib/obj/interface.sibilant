@@ -25,8 +25,10 @@
       (let ((symbol (Symbol name)))
         (print "creating interface" name)
         (collect m (extend  ext (mixin  [(lit name symbol) (dots shares)] obj))
+
                  (set symbols name symbol)
                  (set types  symbol m)
+
                  (when m.build
                    (print "attempting to build interface" build)
                    (.build m ))))))

@@ -1,0 +1,10 @@
+(include "kit/macros")
+(import-namespace kit)
+(include "kit/header")
+
+(include "kit/inc/shell")
+(import-namespace shell)
+
+(pipe (shell (sibilant "./sib/index.sibilant" ["-o"] "./js") )
+      (.then (aprint "success"))
+      (.catch (aprint "fail")))

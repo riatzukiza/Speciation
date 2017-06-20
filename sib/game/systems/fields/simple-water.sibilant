@@ -34,18 +34,29 @@
                 ;; (var mass value)
                 ;; (var t1 (/ heat (* mass specific-heat)))
 
+                ;; (meta
+
+
+                ;;  (rename-macro comment in-file-comment)
+                ;;  (def macros.comment (...body)
+                ;;    (each body  (element)
+                ;;         (if (expression? element)
+                ;;             (if (dotted? element))))
+                ;;    `(in-file-comment ...@body)))
 
 
                 (var average-water (*convolve  average-kernel neiborhood)
                      average-heat (*convolve  average-kernel (get (.get Heat x y) 'neiborhood)))
 
-                ;; if the heat here is higher than the average surrounding heat,
-                ;; then this water should move away
-                ;; This means there will be a larger than 1 heat influence.
+                (comment
+                 " if the heat here is higher than the average surrounding heat,
+                then this water should move away
+                This means there will be a larger than 1 heat influence.
 
-                ;; if the heat here is less than the average surrounding heat,
-                ;; then the nearby water will be moving here.
-                ;;(/    (+ 1 average-heat) (+ 1 heat) )
+                if the heat here is less than the average surrounding heat,
+                then the nearby water will be moving here. "
+
+                 (/    (+ 1 average-heat) (+ 1 heat)))
 
                 (var heat-influence (additive-smooth 1 average-heat heat))
 

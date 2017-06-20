@@ -72,9 +72,7 @@
 
 
 ;; Test logs. If these throw an error, there was a breaking change some where
-(print systems)
 
-(print (.map Heat.components (=> (c) c.influences)))
 
 ;; (var Thermal-energy ((create Field-system) "ThermalEnergy" (/ Field-system.width 2) (/ Field-system.height 2)))
 
@@ -85,14 +83,4 @@
 ;; (def-generic Thermal-energy.Component.update (tick x y)
 ;;   (assign value (/ (.convolve neiborhood average-kernel) 9)))
 
-(print Heat.components.length
-       (pipe Heat.components
-             (.map (=> (c) [c.x c.y c.value c.r]))))
 
-(print average-kernel)
-(print (.convolve average-kernel (matrix 3 3
-                                         [
-                                         1 1 1
-                                         1 1 1
-                                         1 1 1
-                                         ])))

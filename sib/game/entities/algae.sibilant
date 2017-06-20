@@ -1,4 +1,3 @@
-
 (def-interface Algae  (x y components)
 
   (extend Entity)
@@ -9,33 +8,55 @@
 
   (a 255)
 
-  (init (.call Entity.init this  x y components)
-        (on this "death" (entity)
+  (init (.call Entity.init this  x y )
+        (when this.*spawned
 
-            (require-components
-             entity
+          (set this
+               'r 0
+               'g 255
+               'b 0
+               'a 255)
+          (assign this.*dead false)
 
-             (Hydration
-              Calories
-              Nutriants)
-             ;;(print Health Nutriants Calories Hydration)
+          (once this.event "death" (entity)
+                ;;(print "died" entity)
 
-             (set entity 'r 128 'g 100 'b 80)
+                (unless  entity.*dead
+                  (require-components
+                   entity
 
-             (assign entity.components
-                     [
-                      Hydration
-                      ;;Calories
-                      Nutriants
-                      Nutriant-emitter
-                      Water-emitter
-                      Decaying
+                   (Hydration
+                    Calories
+                    Nutriants)
+                   (assign entity.*dead true)
 
-                      ])
+                   ;;(print Health Nutriants Calories Hydration)
 
-             (.call Entity.init entity ))))
+                   (set entity 'r 128 'g 100 'b 80 'a 255)
 
-  (components
+                   (assign entity.components
+                           [
+
+                            Hydration
+                            ;;Calories
+                            Nutriants
+                            (dots (.map [
+
+                                         Nutriant-emitter
+                                         Water-emitter
+                                         Decaying
+
+                                         ]
+                                        (=> (T) (set entity T.symbol (create-instance-of T entity)))))]))))))
+
+  (def clear ()
+
+    (assign this.aspects Algae.aspects)
+    (.remove-all-listeners this.event "*")
+    (.remove-all-listeners this.event "death")
+    (.call Entity.clear this))
+
+  (aspects
 
    [
     Health
@@ -48,7 +69,7 @@
 
     ;; ;; base life form stuff
 
-    (create-instance-of Nutriants this)
+    Nutriants
     Calories
 
     ;; Hydration reduces the amount of energy required to perform most actions.
@@ -61,4 +82,7 @@
 
     ]))
 
-(assign Algae.system ((create Entity-system) 10000 Algae))
+(assign Algae.system
+        (.init (.define Interface 'Algae.system
+                        (lit (extend Entity-system)
+                             (interface Algae)))))

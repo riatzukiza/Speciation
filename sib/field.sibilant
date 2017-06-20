@@ -43,8 +43,7 @@
     (.transit field (=> (x) 0))
     (.update field)
     (.transit field (=> (x) x))
-    (.update field)
-    )
+    (.update field))
 
   (def-generic add-component ( x y value *Component layer components)
 

@@ -29,8 +29,11 @@ reduces energy used, vitamins reduce the amount of damage taken per calorie burn
               (let ((burn (/  delta.negative  (+ 0.001 (percent-of hydration)))))
 
 
-                ;; (sprint delta.negative) (sprint burn)
+                ;; (sprint (+ 0.001 (percent-of hydration)))
+                ;; (sprint delta.negative)
+                ;; (sprint burn)
                 ;; (sprint delta.positive)
+
                 (set delta 'negative burn)
 
                 (.remove hydration burn)
@@ -56,4 +59,4 @@ being eaten, or passive movement of gasses and liquids away from a high density 
 
             (.call Container.update this entity)
             (when (<= health.value 0)
-              (.emit entity "death" entity) )))
+              (.emit entity.event "death" entity) )))
