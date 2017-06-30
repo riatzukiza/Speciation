@@ -8,7 +8,7 @@
 ;; the nodes which contain them.
 
 (def-interface Group
-    ((*list (create-instance-of List))
+    ((*list ((create List)))
      (*members (new Map)))
 
   (gett size this.*list.length)
@@ -28,7 +28,7 @@ See the native `Array.of` static method."
 
   (def-generic from (items (fn (=> (a) a)))
     "create a new group instance from an array like, or iterable object."
-    ((create this) ...(.map items fn)))
+    ((create this) (List.from (.map (Array.from items) fn))))
 
   (def-generic pop (*list *members)
     "remove and return the element last in the groups ordering."

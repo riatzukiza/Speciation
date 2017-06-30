@@ -1,0 +1,9 @@
+(def-interface Random-field
+    (dim
+     *context
+     (limit (product-of dim))
+     (tiles [])
+     (matrix ((create Matrix ) (dots dim ) tiles)))
+
+  (def *update-element (tile)
+    (set-color (random-ubyte) (random-ubyte) (random-ubyte) (random-ubyte) vert)))

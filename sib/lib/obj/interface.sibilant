@@ -20,11 +20,12 @@
 
   (if (in name symbols)
 
-      (do (print "modifying interface" name)(mixin obj (get types (get symbols name))))
+      (do (print "modifying interface" name)
+          (mixin obj (get types (get symbols name))))
 
       (let ((symbol (Symbol name)))
         (print "creating interface" name)
-        (collect m (extend  ext (mixin  [(lit name symbol) (dots shares)] obj))
+        (collect m (extend  ext (mixin  [(dots shares) (lit name symbol) ] obj))
 
                  (set symbols name symbol)
                  (set types  symbol m)

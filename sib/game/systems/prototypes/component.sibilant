@@ -1,0 +1,8 @@
+(def-interface Component (entity))
+
+(def-interface Component-system (limit (entities (new Set)))
+
+  (init (.call Pooled-system.init this limit this.interface))
+  (extend Pooled-system)
+  (interface Component)
+  (def spawn (entity)))

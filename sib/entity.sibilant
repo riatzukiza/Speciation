@@ -1,3 +1,0 @@
-(def-interface Entity (*type )
-  (extend Event-emitter.prototype)
-  (init (.call Event-emitter.call this)))

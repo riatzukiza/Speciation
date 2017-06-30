@@ -57,7 +57,11 @@ const List = {
     },
     from (arrayLike,fn = (a) => a) {
 
-        return create(this)(...arrayLike.map(fn));
+        var list = create(this)();
+        arrayLike.each((e,i) => {
+            list.push(fn(e));
+        })
+        return list
     },
     of(...items) {
         return create(this)(...items);

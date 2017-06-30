@@ -1,4 +1,3 @@
-(include "./macros")
 
 (def-curried render-children ( *parent c i a)
   (if (undefined? c) null
@@ -19,9 +18,6 @@
 
       (.append-child *parent.*node c)))
 
-;; (specify Document (extend Event-emitter.prototype))
-
-(alias-macro def-description def-describe)
 (def-interface Document-node
     (tag-name
      attributes
@@ -31,6 +27,8 @@
      (*node (document.create-element tag-name)))
 
   (extend Event-emitter.prototype)
+
+  (init (.call Event-emitter this))
 
   (gett children this.*children)
 
@@ -56,9 +54,9 @@
   (def-generic append (node children)
     (.push children node)
     this)
+
   (def-generic prepend (node children)
-    (assign this.children [node children])
-    )
+    (assign this.children [node children]))
 
   (def-generic remove (*node *parent)
 
@@ -66,9 +64,9 @@
 
     (.filter *parent.children (=> (c) (not (= *node c))))
     (.emit *parent 'remove *node)
-    this
-    )
-  )
+    this))
+
+(export Document-node)
 
 (def-interface Document-root ()
   (extend Document-node)
@@ -77,6 +75,8 @@
   (tag-name "body")
   (*node document.body)
   (*children []))
+
+(export Document-root)
 
 
 

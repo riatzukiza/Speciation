@@ -6,6 +6,7 @@
 
 (import-namespace kit)
 
+(print "window gl from readline js"window.gl)
 (require! R "ramda"
 
           "vm" "fs" "sibilant"

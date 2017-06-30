@@ -26,10 +26,13 @@
   (extend Matrix )
 
   (gett Component this.*Component)
+
   (doc "A quantity which has a value over every point of a global space for all locations in space and time.")
+
   (height sim.*width)
 
   (width sim.*width)
+
   (gett array this.components)
 
   (init (.push systems this))

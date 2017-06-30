@@ -1,15 +1,17 @@
-
 (macro  reciprocal (n) `(/ 1 @n))
 (type Container)
 (describe Container
           (max 100)
 
-          (init (entity max (value max) (delta { positive 0 negative 0 }) ))
+          (init (entity max (value max)
+                        (delta { positive 0 negative 0 }) ))
 
           (def-generic add (v )
+            "increase the positive delta of this container by v. "
             (incr-by this.delta.positive v))
 
           (def-generic remove (v)
+            "increase the negative delta of this container by v"
             (incr-by this.delta.negative v))
 
           (def-generic full? (value max)

@@ -14,9 +14,8 @@
     (if (empty? seq)
         tree
         (f tree seq)))
-  (def-generic delete (seq)
 
-    )
+  (def-generic delete (seq))
 
   (def-generic find (seq (tree this))
     (if (empty? seq)
@@ -58,3 +57,4 @@
               (if (leaf? node)
                   (f node k)
                   (.each node f false leaf *children))))))
+(export Tree)

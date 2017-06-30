@@ -1,0 +1,8 @@
+(def-interface Random-field (dim *context spacing)
+
+  (init (.call Field.init this dim *context spacing ))
+
+  (extend Field)
+
+  (def *update-element (element)
+    (set-color (random-ubyte) (random-ubyte) (random-ubyte) (random-ubyte) element.vertex)))

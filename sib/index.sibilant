@@ -1,187 +1,87 @@
+(console.log "gl" window.gl)
+
 (include "kit/macros.sibilant")
+(include "kit/header")
+
+
+(def-curried fset (o k v) (set o k v))
+
+(require! 'sibilant)
+
 
 (import-namespace kit)
 
-(comment "It is about time I moved some of these includes into require statements, one at a time.")
+(def window.size () [window.inner-width window.inner-height])
 
-(macro in ( k o) [k " in " o])
-(macro generic (name def args ...body)
-       `(...@(content-of def) @name
-            (...@(functor (content-of args) .map (arg)
+(include "./headers"
+         "./inc/math"
+         "./inc/vertex"
+         "./shaders"
+         "./object-pool.sibilant"
+         "./ticker"
+         "./game"
+         "./pooled-system.sibilant"
+         "./entity-system.sibilant"
+         "./systems/vertex-context.sibilant"
+         "./systems/interfaces/field"
+         "./systems/random-field"
+         ;;"./tests.sibilant"
+         )
 
-                          (if (expression? arg)
-                              `(default @(first (content-of arg)) @(second (content-of arg)))
-                              (or (brace? arg)
-                                  (bracket? arg))
-                              `(default @arg [...@(.map arg.contents
-                                                        (lambda (varname)
-                                                          `(get this (quote @varname))))])
-                              `(default @arg (get this (quote @arg))))))
-            ...@body))
+(var dim (window.size))
 
-(macro instance-of? (item type) ["("  type " " 'instanceof " " item ")"])
+(var context ((create Vertex-context) dim))
 
-(include "./headers")
+(def-interface Data-layer ())
+(def-interface View-layer ())
 
-(include "./ticker")
+(def-interface Layers (data view)
 
-(include "./system.sibilant")
+  (extend Pooled-system)
 
-(include "./lib/collection/tree"
-         "./lib/collection/tree-map")
+  (def add-data ())
+  (def add-view ()))
 
-(include "./lib/collection/ordered-map.sibilant")
-(include "./lib/collection/ordered-bucket-map.sibilant")
-(include "./lib/collection/bucketed-tree.sibilant")
+;; (var rand-field ((create Random-field) (.map dim (fpipe (/ 4) Math.ceil)) context 4))
 
+;; (print rand-field)
 
-
-(include "./events")
-
-
-(macro def-description (name args ...body)
-       "define a type and describe it in a function like syntax. The arguements body is passed to the last instance of the init macro as its argument body."
-
-       (def init-expression? (e) (and (expression? e) (= (get (first e.contents) 'token)  'init)))
-       (def describer? (e) (not (init-expression? e)))
-
-       (var init-form (pipe body (.filter  init-expression?)
-                            last
-                            ))
-       (var init-body (ternary init-form (rest init-form.contents) []))
-
-       (var description [ `(init @args ...@init-body)...(pipe body (.filter  describer?))])
-
-       (if (dotted? name)
-           `(set Descriptions (quote @name) (mixin (lit ...@description) @name  ))
-           `(set Descriptions (quote @name) (mixin (lit ...@description) @name  ))))
-
-
-(var wrap Document-node.wrap)
-(var stage (dom (.div .id 'stage )))
-(var container (dom (.div .id "container" stage Vertex-system.*gl.context.canvas)))
-
-(with-dom Document-root (.div .id 'frame container))
-
-(include "./simulation.sibilant")
-(var sim ( (create Simulation) 30 100 8))
-(assign global.sim sim)
-
-(include "./field.sibilant")
-
-
-
-(def total (arr)
-  "calculate the total sum of all values in an eachable."
-  (var sum 0)
-
-  (each arr (v) (incr-by sum v))
-  sum)
-
-
-
-(def display-stats (field-system)
-  "calculate and log the average and total values for all cells in a system."
-
-  (pipe field-system.field
-        total
-        ((aprint "total" field-system.name))
-
-        (/  (* 100 100))
-        ( (aprint "average" field-system.name))))
-
-(def update-entities ()
-  "update the state of every entity. Entity updates may affect fields and other systems."
-
-  (each entities (ent)
-        (.update ent)))
-
-;; (def update-off-beat-fields (current-system)
-;;   "Swap the transition with the state of all field systems except the one currently said to be active."
-;;   (pipe systems
-;;         (.filter  (=> (s) (not (= s current-system))))
-;;         (each (s) (.update s.field))))
-(def update-on-beat-field (current-system ticks)
-  "calculate the values for the system that is said to currently be active. Systems are updated one
-at a time, one per tick,so that updates to each can make changes to each. Values of each system will
-be integrated for the time missing between each of their updates."
-
-  (.update  current-system ticks)
-
-  (.update current-system.field))
-
-(def get-onbeat (ticks)
-  "return the id of the *onbeat* or major system of the current tick"
-  (get systems (mod ticks systems.length) 'symbol))
-
-(def refresh-fields ()
-  "update the state matricies of every existing field."
-  (each systems (system) (.update system.field )))
-
-(def update-display ()
-  (pipe sim.layers
-        (.update )
-        (.render)))
-
-
-
-
-;; (include "./gl.sibilant")
-
-
-
-
-(include "./game/systems.sibilant")
-
-;;(include "./gl/gl.sibilant")
-
-(include "./game/components.sibilant")
-(include "./game/entity-system")
-
-(include "./game/starting-entities")
-
-
-;; (var vert-sys ((create Vertex-system) 1000))
-;; (var coords [[ 10 10 0 ] [ 0 255 0 255 ] ])
-;; (var p1 (.insert vert-sys coords))
-;; (var p2 (.insert vert-sys coords))
-
-;; (sprint (.find vert-sys [10 10 0 998]))
-
-
-;; ;; Dot wasn't working till shortly before we started.
-
-;; (def move (loc dest tree)
-;;   (var node (.find tree loc))
-;;   (.delete tree loc)
-;;   (.set tree dest)
-;;   node)
-
-;; (print p1)
-;; (print Ordered-map)
-;; (print vert-sys)
-
-;; (print  Bucketed-tree)
-
-(each systems (s) (.populate s))
+;; (.populate rand-field)
 
 (var lagged-ticks 0)
+
+(def handle-lag ( (default handle-lag (-> )))
+  (if (> Ticker.elapsed Ticker.rate)
+      (handle-lag)
+      (assign lagged-ticks 0)))
+
+;; (print (.get rand-field.matrix 10 10))
+
+;; (def-interface Tile-system (layers )
+;;   (extend Pooled-system))
+
+;; (var test-unit (.spawn context))
+;; (var )
+
 (pipe Ticker
-      (.init  10)
+      (.init  1)
       (.start )
+
       (.remove-all-listeners 'tick)
 
       (.on 'tick (=> (now tick)
+                     ;;(handle-lag (-> (print "lagging for" lagged-ticks)))
 
-                     (if (> Ticker.elapsed (* Ticker.rate 3 ))
-                         (do (incr lagged-ticks)
+                     (.update context)
+                     ;;(.update rand-field)
 
-                             (print "game is lagging" Ticker.elapsed "is greater than" Ticker.rate "for" lagged-ticks "ticks")
-                             (if (> lagged-ticks 20)
-                                 (do "resetting from lag"
-                                     (initialize-game))))
-                         (assign lagged-ticks 0))
+                     )))
 
-                     (update-game tick))))
+(var wrap Document-node.wrap)
+(var stage (dom (.div .id 'stage )))
+(var container (dom (.div .id "container"  stage context.context.canvas)))
 
+(with-dom Document-root
+  (.div .id 'frame container))
 
+(print "DONE LOADING")

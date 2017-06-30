@@ -1,0 +1,97 @@
+
+
+(require "webgl/lib/ext/window")
+
+(require! (lit Buffer Program Shader Attribute Type Context Uniform) "webgl/lib/webgl/gl"
+          (lit Blend-mode) "webgl/lib/math/color.js")
+(var (lit RGBA) Type)
+
+(var (lit ubyte) Type)
+
+
+(def-interface Vertex (vert)
+
+  (Type (new Type.Composite (lit (point Type.Vector3) (color RGBA)))))
+
+(def-interface Vertex-context
+    (dim
+     (limit (product-of dim))
+     (context (pipe (new Context)
+                    (.make-current)
+                    (.resize (dots dim))
+                    (.clear-color 0 0 0 1)
+                    (.blend true)
+                    (.clear)))
+     (*members (Vertex.Type.Array limit))
+     (vertex-buffer (pipe (new Buffer  context.ARRAY_BUFFER, context.DYNAMIC_DRAW)
+                          (.bind)
+                          (.data *members.data)
+                          (.unbind)))
+     (u-res (new Uniform.Vector2 "Resolution" dim))
+     (u-scale (new Uniform.Float "Scale" 1.0))
+     (program (new Program
+                   (new Shader Shader.vertex (vert-shader "4.0"))
+                   (new Shader Shader.fragment fragment-shader-string))))
+
+  (init (.call Pooled-system.init this
+               limit
+               this.interface
+               ((create Object-pool) limit this.interface *members))
+
+        (var _ R._)
+        (.each ( Array.from *members) (=> (m k) (assign m.id k))))
+
+  (extend Pooled-system)
+
+  (interface Vertex.Type)
+
+  (def spawn ()
+
+    "aquire an object from the systems pool, and initialize it."
+
+    (pipe this.*pool (.aquire)))
+
+  (def despawn (obj)
+    "remove an object from the system, and release it back into the pool."
+
+    (.clear obj)
+    (pipe this.*pool
+          (.release obj)))
+
+  (def-generic *render (in-use context)
+
+    (each in-use (v)
+          (.draw context context.POINTS  v.id 1)))
+
+  (def-generic enable (program u-res u-scale )
+    (.enable program)
+    (.enable u-res)
+    (.enable u-scale)
+
+    (.enable-gl-attributes Vertex.Type))
+
+  (def-generic disable (program u-res u-scale)
+
+    (.disable-gl-attributes Vertex.Type)
+
+    (.disable program)
+
+    (.disable u-res)
+    (.disable u-scale))
+
+  (def-generic update (in-use context vertex-buffer program u-res u-scale count *members)
+    "render each visible dot to the screen"
+
+    (pipe vertex-buffer .bind (.data *members.data) .unbind)
+
+    (.clear context)
+
+    (.bind vertex-buffer)
+
+    (.enable this)
+
+    (.*render this this.*pool.*in-use)
+
+    (.disable this)
+
+    (.unbind vertex-buffer)))

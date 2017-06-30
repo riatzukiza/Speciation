@@ -1,0 +1,50 @@
+(def-interface Entity
+    (aspects
+     (components [])
+     (event (new Event-emitter)))
+
+  (def-generic *build-components (aspects components)
+    (.transform Array aspects
+                (=> (T) (set this T.symbol (.aquire T this)))
+                components))
+
+  (def spawn ()
+    "Aquire an empty entity instance, and initialize it."
+
+
+    (.spawn this.system (dots arguments)))
+
+  (def-generic clear ((entity this) layer)
+    "remove an entity from the system, and clear its component list."
+
+    ;;(print "clearing" entity)
+    (.remove-all-listeners entity.event "error")
+
+    (assign entity.event null)
+
+    entity)
+
+  (def despawn ()
+
+    "Remove this entity from the system."
+
+    (when this.*spawned (.release this.system this))
+    this)
+
+
+  (gmth update (components)
+        "update every component of this entity in order of appearance."
+        (each components (comp) (.update comp this))))
+
+(def-interface Entity-system (limit)
+
+  (extend Pooled-system)
+
+  (init (.call Pooled-system.init this limit this.interface))
+
+  (interface Entity)
+
+
+  (mth move (entity [x y])
+       "move an entity to the given location, if the location does not collide with any other entities."
+       (.move Collision [x y] entity)))

@@ -3,8 +3,8 @@
   (extend Tree)
 
   (def-generic delete (seq (tree this) )
-    (find)
-    )
+    (find))
+
   (def-generic *find (seq (tree this) (*children tree.*children) (node (*children.get (first seq))))
 
     (if node (.find node (rest seq)) false))
@@ -13,3 +13,5 @@
 
     (*children.set (first seq) node )
     node))
+
+(export Tree-map)

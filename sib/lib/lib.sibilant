@@ -1,4 +1,3 @@
-
 (include "./natives/array.sibilant"
          "./natives/map.sibilant"
          ;;"./natives/set.sibilant"
@@ -6,12 +5,21 @@
 
 (include "./obj/interface")
 
-(include "./common/promise-writer" )
+;;(include "./common/promise-writer" )
+
 (include "./math")
-(include "./html/element"
-         "./html/dom")
 
+;; (include ;;"./html/element"
+;;          "./html/dom"
+;;          )
 
+(require! (lit Document-node Document-root) "./lib/html/dom")
+(var create-document-node (create Document-node))
+
+(include "./html/macros")
+
+;; (require! (lit Matrix  Matrix-view Kernel ) "kit/js/matrix"
+;;           (lit Tree-map) "kit/js/data-structures")
 
 (require! (lit Matrix  Matrix-view Kernel ) "kit/sib/matrix"
           (lit Tree-map) "kit/sib/data-structures")
@@ -23,10 +31,12 @@
 
 (var tree-map (create Tree-map))
 
-(include "./state-space.sibilant")
+(require! (lit State-space) "./lib/state-space.sibilant")
 
 (var set-value (R.curry (=> (value entity) (assign entity.value value))))
+
 (var curry R.curry)
+
 (var (lit ( not fnot) (pipe fpipe) equals) R)
 
 ;;(include "./field.sibilant")
@@ -34,6 +44,7 @@
 (def Object.prototype.each (f)
   (each (Object.keys this) (k)
         (f (get this k) k)))
+
 (set global
      'create create
      'extend extend

@@ -82,3 +82,5 @@
           (.set *members key value)
 
           value))))
+
+(export Ordered-map)

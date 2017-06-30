@@ -40,3 +40,4 @@
   (def-generic delete ([k value]))
 
   )
+(export Ordered-bucket-map)
