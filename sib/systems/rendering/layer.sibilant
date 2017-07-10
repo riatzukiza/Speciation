@@ -1,0 +1,73 @@
+
+(def-interface Renderable ( layer structure))
+
+;; This is the L on the sketched graph
+(def-interface Layer
+
+    (limit
+     (interface Renderable)
+
+     (uniform [])
+     (shaders [])
+     context
+
+
+
+     (program (Gl.program (first shaders) (second shaders) context))
+
+     (*members (interface.structure.Array limit))
+
+     (buffer (Gl.buffer *members context)))
+
+  (extend Pooled-system)
+
+
+  (def spawn () (pipe this.*pool (.aquire)))
+
+  (init
+
+   (.call Pooled-system.init this
+          limit
+          interface
+          ((create Object-pool) limit interface *members))
+
+   (.push this.rendering.layers this))
+
+  (def-generic clear (buffer *members context)
+
+    (pipe buffer .bind (.data *members.data) .unbind))
+
+  (def-generic enable (buffer uniform program context)
+
+    (.bind buffer)
+
+    (.enable program)
+    (.each uniform enabled)
+    (.enable-gl-attributes this.interface.structure)
+
+    )
+
+  (def-generic disable (buffer uniform program)
+
+    (.disable-gl-attributes this.interface.structure)
+    (.disable program)
+
+    (.each uniforms disabled)
+
+    (.unbind buffer)
+
+    )
+
+  (def-generic draw (context)
+
+    (each this.*pool.*in-use (v)
+          (.draw context context.POINTS  v.id 1)))
+
+  (def-generic render ()
+
+    (.clear this)
+    (.enable this)
+
+    (.draw this )
+
+    (.disable this)))

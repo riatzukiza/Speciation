@@ -1,0 +1,6 @@
+(include "./lighting.sibilant")
+
+(var lighting ((create Lighting)))
+(print lighting.layer)
+
+(.spawn lighting 300 300  50000)

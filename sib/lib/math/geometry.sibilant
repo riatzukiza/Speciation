@@ -18,3 +18,5 @@
                        (when @cond (assign true? true)))
 
                 true?))
+(def inverse-square (rate c pos (lit x y) )
+  (/ rate (+ c (Math.pow (euclidian-distance x y pos.x pos.y) 2))))

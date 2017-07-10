@@ -1,0 +1,105 @@
+(def-interface Moore-neighborhood (pos size)
+  )
+(def-interface Source (center *intensity (verts []))
+  (gett threshold (.falloff-threshold Lighting this.intensity))
+  (gett intensity this.*intensity)
+  (sett intensity v
+        (assign this.*intensity v)
+
+
+        )
+
+  )
+
+(def-interface Lighting
+    ((layer (.spawn rendering 1000000 Vertex
+
+                    [ uniforms.res uniforms.scale]
+                    [(vert-shader) fragment-shader-string]))
+     (*sources [])
+     (*matrix ((create Matrix (dots rendering.dimension)))))
+
+  (extend Pooled-system)
+
+  (init (.call Pooled-system.init this ))
+
+  (def update (*sources layer))
+
+  (def falloff-threshold (I)
+
+    (var looping true)
+
+    (collect n 0
+             (while looping
+
+               (var local-i (inverse-square I 1 (lit x y) (lit (x (+ x n)) (y (+ y n)))))
+
+               (print "local i" local-i)
+
+               (if (> 1 local-i)
+                   (assign looping false)
+                   (++ n)))))
+
+  (def update ())
+  (def aquire-rays (source)
+    (each source.verts (v) (.despawn this.layer v))
+    (square source.threshold
+            (=> (i j)
+
+                (var v (.spawn this.layer))
+
+                (set v.point
+                     'x (+ x i)
+                     'y (+ y j)
+                     'z 0)
+
+                (var local (Math.min
+                            255
+                            (inverse-square I 1
+                                            (lit x y)
+                                            (lit (x (+ x i))
+                                                 (y (+ y j))))))
+
+                (set v 'size (Math.pow (/ local 255) 0.4))
+
+                (print "local" i j local)
+
+                (set v.color
+                     'r 255
+                     'g 255
+                     'b 255
+                     'a local )))
+    )
+
+  (def render-source (x y I)
+
+    (var n (.falloff-threshold this i))
+
+    (square n (=> (i j)
+
+                  (var v (.spawn this.layer))
+
+                  (set v.point
+                       'x (+ x i)
+                       'y (+ y j)
+                       'z 0)
+
+                  (var local (Math.min
+                              255
+                              (inverse-square I 1
+                                              (lit x y)
+                                              (lit (x (+ x i))
+                                                   (y (+ y j))))))
+
+                  (set v 'size (Math.pow (/ local 255) 0.4))
+
+                  (print "local" i j local)
+
+                  (set v.color
+                       'r 255
+                       'g 255
+                       'b 255
+                       'a local ))))
+
+
+  (interface Source))

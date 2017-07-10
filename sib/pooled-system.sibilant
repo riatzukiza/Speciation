@@ -1,3 +1,7 @@
+(var despawned (fpipe .despawn))
+
+;; System-pool
+
 (def-interface Pooled-system
     (limit
      interface
@@ -9,9 +13,9 @@
 
   (systems (new Map))
 
-  (def-generic clear (*pool)
-    (each *pool.*in-use (e) (.despawn e))
-    (.clear *pool))
+  (def-generic clear (*pooled)
+    (.each *pooled (feach despawned))
+    (.clear *pooled))
 
   (def spawn ((dots args))
 

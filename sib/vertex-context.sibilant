@@ -16,7 +16,6 @@
     (dim
      (limit (product-of dim))
 
-
      (*members (Vertex.Type.Array limit))
 
      (context (pipe (new Context)
@@ -41,7 +40,7 @@
 
      (program (new Program
                    (new Shader Shader.vertex (vert-shader "4.0"))
-                   (new Shader Shader.fragment fragment-shader-string)))) 
+                   (new Shader Shader.fragment fragment-shader-string))))
   (init (.call Pooled-system.init this
                limit
                this.interface

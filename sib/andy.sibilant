@@ -1,0 +1,12 @@
+(require "webgl/lib/ext/window")
+(var Andy {})
+
+(require! Andy.Gl "webgl/lib/webgl/gl"
+          Andy.Color "webgl/lib/math/color.js")
+
+(assign Andy.Color.RGBA Andy.Gl.Type.RGBA
+        Andy.ubyte Andy.Gl.Type.ubyte
+        Andy.Type Andy.Gl.Type)
+
+(mixin [Andy.Gl Andy.Color] Andy)
+

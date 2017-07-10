@@ -1,4 +1,3 @@
-
 const vshadersrc = `
 attribute vec3 aPosition;
 attribute vec4 aColor;
@@ -13,7 +12,8 @@ void main(void)
     gl_Position = vec4(((((aPosition+vec3(1.0,1.0,0.0))*uScale/vec3(uResolution-uScale*2.0,1.0))*vec3(2.0,-2.0,-0.01))-vec3(1.0,-1.0,0.0)), 1.0);
     gl_PointSize = uScale;
     vColor = aColor/255.0;
-}`;
+}
+`;
 const fshadersrc = `
 precision mediump float;
 varying vec4 vColor;
@@ -21,6 +21,7 @@ void main(void)
 {
     gl_FragColor = vColor;
 }`;
+
 
 let choose = ((tlayer) => (clayer) => {
     if (clayer.zindex > tlayer.zindex) clayer.zindex--;
@@ -64,7 +65,10 @@ class Layers {
         gl.blendEquation(gl.FUNC_ADD);
         //gl.blendEquationSeparate( gl.FUNC_ADD, gl.FUNC_REVERSE_SUBTRACT );
         //gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFuncSeparate(gl.SRC_ALPHA,
+                             gl.ONE_MINUS_SRC_ALPHA,
+                             gl.ONE,
+                             gl.ONE_MINUS_SRC_ALPHA);
 
         //gl.blendFuncSeparate( gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
 
@@ -157,7 +161,9 @@ class Layers {
     }
 
     update() {
+
         // if number of entities has changed then resize data
+
         if (this.dirty) {
             this.data = new Float32Array(this.count * 7);
             this.dirty = false;

@@ -1,8 +1,3 @@
-(include "./group.sibilant")
-
-(macro array-of (size ...body)
-       `(collect array []
-                 (do-times @size (.push array (scoped ...@body)))))
 
 ;; This is, what I think to be, the simplest possible implementation of an object pool that works.
 ;; There are many other ways to do it which yeild better performance, and more flexibility,
@@ -30,6 +25,12 @@
 ;; in this context, a group refers to a type of collection which acts as an ordered set.
 ;; This is just what I called this, you may also call it an ordered set.
 
+(include "./group.sibilant")
+
+(var *assign-id (=> (m k) (assign  m.id k) m))
+(macro array-of (size ...body)
+       `(collect array []
+                 (do-times @size (.push array (scoped ...@body)))))
 
 
 
@@ -42,6 +43,9 @@
                             (*available (Group.from *array))
 
                             (*in-use (.create Group )))
+
+
+  (init (.each *array *assign-id))
 
   (pools (new Map))
 

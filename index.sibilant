@@ -1,0 +1,22 @@
+(include "../kit/header")
+(import-namespace kit)
+
+(require! hashFile "./hash-file.js"
+          'sibilant
+          )
+
+;; (var src (.load File-system "./src")
+;;      js (.load File-system "./out"))
+
+
+
+(def-interface Module ())
+(def-interface Module.System ()
+  )
+(var input ((create File-system) "./sib")
+     output ((create File-system) "./out"))
+
+(var m (.specify Relationship input output))
+(.add m "./index")
+
+(print sibilant)

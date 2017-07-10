@@ -1,18 +1,34 @@
-(def-interface Entity
-    (aspects
+
+;; (def spawn ()
+;;   "Aquire an empty entity instance, and initialize it."
+
+
+;;   (.spawn this.system (dots arguments)))
+
+;; (def despawn ()
+
+;;   "Remove this entity from the system."
+
+;;   (when this.*spawned (.release this.system this))
+;;   this)
+
+;; (def-generic update (components)
+;;   "update every component of this entity in order of appearance."
+;;   (each components (comp) (.update comp this)))
+
+(def-interface Component-pool
+
+    (aspects ;; systems which manage the components that are associated with this type of entity
      (components [])
      (event (new Event-emitter)))
+
+  (init (.*build-components this  aspects components))
 
   (def-generic *build-components (aspects components)
     (.transform Array aspects
                 (=> (T) (set this T.symbol (.aquire T this)))
                 components))
 
-  (def spawn ()
-    "Aquire an empty entity instance, and initialize it."
-
-
-    (.spawn this.system (dots arguments)))
 
   (def-generic clear ((entity this) layer)
     "remove an entity from the system, and clear its component list."
@@ -22,29 +38,13 @@
 
     (assign entity.event null)
 
-    entity)
-
-  (def despawn ()
-
-    "Remove this entity from the system."
-
-    (when this.*spawned (.release this.system this))
-    this)
-
-
-  (gmth update (components)
-        "update every component of this entity in order of appearance."
-        (each components (comp) (.update comp this))))
+    entity))
 
 (def-interface Entity-system (limit)
 
-  (extend Pooled-system)
 
   (init (.call Pooled-system.init this limit this.interface))
 
-  (interface Entity)
+  (interface Component-pool)
 
-
-  (mth move (entity [x y])
-       "move an entity to the given location, if the location does not collide with any other entities."
-       (.move Collision [x y] entity)))
+  )

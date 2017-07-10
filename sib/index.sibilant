@@ -3,6 +3,14 @@
 (include "kit/macros.sibilant")
 (include "kit/header")
 
+(macro def-system (name args ...body)
+       `(def-interface @name ()
+
+          (init (.call Pooled-system.init this))
+          (extend Pooled-system)
+
+          ...@(.map (content-of args) (=> (name) `(@name [])))
+          ...@body))
 
 (def-curried fset (o k v) (set o k v))
 
@@ -22,25 +30,53 @@
          "./game"
          "./pooled-system.sibilant"
          "./entity-system.sibilant"
-         "./systems/vertex-context.sibilant"
-         "./systems/interfaces/field"
-         "./systems/random-field"
+         ;; "./systems/vertex-context.sibilant"
+         ;; "./systems/interfaces/field"
+         ;; "./systems/random-field"
+
          ;;"./tests.sibilant"
+         "./systems/rendering"
+
          )
+
+(def-interface Game
+
+    ((systems [])
+     (services [])
+     ;;(systems (pipe Systems (.init) .start)) ;; systems are code that evaluate on every tick of the game sim
+     ;;(services (pipe Services (.init) .start)) ;; services are updated as needed.
+
+     (ticker (pipe Ticker (.init  10) .start
+
+                   (.remove-all-listeners 'tick)
+
+                   (.on 'tick (=> (now tick)
+                                  (.update systems))))))
+  (def start ()
+    (.init this)))
+
+(def-interface System ()
+  (extend Pooled-system))
+
+(def-interface Systems ()
+  (extend Pooled-system)
+  (interface System))
+(def-interface Services ())
+
 
 (var dim (window.size))
 
-(var context ((create Vertex-context) dim))
+;; (var context ((create Vertex-context) dim))
 
-(def-interface Data-layer ())
-(def-interface View-layer ())
+;; (def-interface Data-layer ())
+;; (def-interface View-layer ())
 
-(def-interface Layers (data view)
+;; (def-interface Layers (data view)
 
-  (extend Pooled-system)
+;;   (extend Pooled-system)
 
-  (def add-data ())
-  (def add-view ()))
+;;   (def add-data ())
+;;   (def add-view ()))
 
 ;; (var rand-field ((create Random-field) (.map dim (fpipe (/ 4) Math.ceil)) context 4))
 
@@ -51,6 +87,7 @@
 (var lagged-ticks 0)
 
 (def handle-lag ( (default handle-lag (-> )))
+
   (if (> Ticker.elapsed Ticker.rate)
       (handle-lag)
       (assign lagged-ticks 0)))
@@ -62,24 +99,64 @@
 
 ;; (var test-unit (.spawn context))
 ;; (var )
+;; (var entities ((create Entity-system) 10000))
 
-(pipe Ticker
-      (.init  1)
-      (.start )
+;; (def-interface Tile (x y (data [])))
 
-      (.remove-all-listeners 'tick)
+;; (def-interface Tile-map (lim context)
 
-      (.on 'tick (=> (now tick)
-                     ;;(handle-lag (-> (print "lagging for" lagged-ticks)))
+;;   (extend Pooled-system)
+;;   (interface Tile)
 
-                     (.update context)
-                     ;;(.update rand-field)
+;;   (init (.call Pooled-system.init this limit this.interface))
 
-                     )))
+;;   (def spawn (x y)))
+
+;; (def-interface Lighting ())
+;; (def-interface Sun ())
+
+
+;; ;; (def-entity Tile ())
+;; ;; (def-entity Road ())
+;; ;; (def-entity Building ())
+
+;; ;; (def-interface Agent ())
+;; ;; (def-interface Agent.Objective ())
+
+
+
+(def-interface Vertex (layer)
+
+  (extend Renderable)
+
+  (structure (new Andy.Gl.Type.Composite
+                  (lit (point Andy.Type.Vector3)
+                       (color Andy.Color.RGBA)
+                       (size Andy.Type.float)))))
+
+
+
+
+(var rendering (.load Rendering
+                      (lit (size (window.size))
+                           (limit 100)
+                           (blend true))))
+
+(include "./systems/test.sibilant")
+
+
 
 (var wrap Document-node.wrap)
-(var stage (dom (.div .id 'stage )))
-(var container (dom (.div .id "container"  stage context.context.canvas)))
+
+(var stage
+     (dom
+      (.div .id 'stage )))
+
+(var container
+     (dom
+      (.div .id "container"
+            stage
+            rendering.context.canvas)))
 
 (with-dom Document-root
   (.div .id 'frame container))

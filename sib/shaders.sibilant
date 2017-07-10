@@ -6,6 +6,7 @@
            (print "shader" shader)
            ))
 
+(meta )
 
 (def vert-shader (point-size)
   ("#version 300 es

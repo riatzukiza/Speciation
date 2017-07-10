@@ -1,0 +1,34 @@
+
+(include "../kit/header")
+(import-namespace kit)
+(var *paths (new Map))
+
+(def tokenized (p) (remember *paths p (.split p "/")))
+
+
+(macro task (p)
+       "enque a task on the current object by adding a step to the objects internal
+promise."
+       `(assign this.*p (then-do (Promise.resolve this.*p) @p)))
+
+(def-interface Relationship
+    ((*T [])
+     (*t ((create Tree-map))))
+  (doc "used when there are more than one tree with a similar structure
+that you want to access simultaneously.")
+  (def specify ((dots *T))
+    ((create Relationship) *T))
+
+  (def-generic add (p *T *t )
+    "Add a relationship to the tree. When a relationship is
+made in this data structure, it means that the underlying tree
+structures are expected to share this structural feature."
+
+    (task (pipe (.map-all Future.Array (fpipe (.find p)) *T)
+                (then nodes
+                      (.set *t p nodes)))))
+
+  (def-generic find (p *t)
+    "locate a relationship in the diagram"
+    (task (.find *t p)))
+  (def-generic each (f *a)))
