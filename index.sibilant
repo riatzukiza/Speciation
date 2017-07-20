@@ -1,22 +1,61 @@
-(include "../kit/header")
+
+
+
+(include "kit/macros")
 (import-namespace kit)
 
-(require! hashFile "./hash-file.js"
-          'sibilant
-          )
+(include "kit/header")
 
-;; (var src (.load File-system "./src")
-;;      js (.load File-system "./out"))
+(require! 'sibilant 'repl 'chokidar
+
+          (lit File-system) "./lib/file-system"
+          (lit Source-map) "./lib/source-map"
+          (lit Process) "./lib/electron"
+          (lit Client) "./lib/repl")
+
+(print "source map" Source-map)
+
+(macro entask (o ...body) `(set @o 'state (then  (get @o 'state) state ...@body)))
 
 
+(def invalidate-module-cache  ([src lib])
+  (delete (get require.cache src.path))
+  (delete (get require.cache lib.path)))
 
-(def-interface Module ())
-(def-interface Module.System ()
-  )
-(var input ((create File-system) "./sib")
-     output ((create File-system) "./out"))
+(def refresh-module ([src lib])
+  (invalidate-module-cache [src lib])
+  (require lib.path))
 
-(var m (.specify Relationship input output))
-(.add m "./index")
+(pipe Source-map.event
+      (.on  'update (aprint "updated") )
+      (.on 'update invalidate-module-cache)
+      (.on  'load (aprint "loaded") ))
 
-(print sibilant)
+;; next step is to revise the engine, move all relevent code in sib to src and
+;; build it to compile properly to lib
+(.load Source-map sibilant
+       ["./src" "./lib"]
+       ["index"
+        "file-system"
+        "source-map"
+        "interface"
+        "tree"
+        "electron"
+        "game"])
+
+
+;; Process is the electron context, the browser space, where all our code is to be evaluated
+(const process (.load Process "game"))
+;; The client sets up a connection with a server spawned by the process.
+;; we will send from the client to the server javascript that is to be executed in the context.
+(const client (.spawn Client ))
+
+(.once process 'loaded
+       (-> (.start client)))
+
+
+;; (pipe (.then (-> )
+;;              (athrow Error "failed to load"))
+
+;;       (.then (-> ) (athrow Error "failed to load")))
+

@@ -1,0 +1,39 @@
+
+(def-interface Road-segment ())
+(def-interface Road-path ())
+
+(def-interface Intersection ())
+
+(var Road-graph (extend Graph
+                        (lit (Node Intersection)
+                             (Edges Road-path))))
+
+(def-interface Road-Ghost (start (*active? true))
+
+  (def activate () "User clicks the screen with the road tool indicating that they wish to begin a road.")
+
+  (def build ()
+    "User clicks a second time with the road tool indicating they are done plotting."
+    )
+
+  (def deactive ()
+    "User switches from the road tool while the ghost is active, or right clicks,deactivating the ghost,
+but never placing a road"))
+
+
+
+(def-interface Road-system ()
+
+  (graph ((create Road-graph)))
+
+  (layer (spawn-vertex-layer))
+
+  (def add ()
+    "Add a road segment to the road graph, the graph will adjust its edges and nodes automaticly"
+    )
+  (def remove ()
+
+    )
+  (def find ())
+
+  )

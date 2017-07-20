@@ -1,0 +1,141 @@
+;; There is hierarchy of systems where each system is a hierarchy of components.
+
+(require "webgl/lib/ext/window")
+
+(var Color (new Type.Composite (lit (r ubyte) (g ubyte) (b ubyte) (a ubyte))))
+
+(var Vertex (new Type.Composite (lit (point Type.Vector3) (color Color))))
+
+
+(assign Array.prototype.bind
+        (def Array.bind (a f)
+          (.reduce a (=> (r e i)
+                         (each (f e i) (x)
+                               (.push r x)) r) [])))
+
+(meta
+ (include "./lib/natives/array.sibilant")
+ 
+ (assign Array.prototype.bind
+              (def Array.bind (a f)
+                (.reduce a (=> (r e i)
+                               (each (f e i) (x)
+                                     (.push r x)) r) []))))
+(macro sprint (...args)
+
+       (print "expanding sprint" args)
+       `(print ...@(Array.bind args (=> (a) [`(quote @a) a]))))
+
+(var vert-shader-string ("#version 300 es
+in vec3 a_point;
+in vec4 a_color;
+
+out highp vec4 vColor;
+
+uniform vec2  u_Resolution;
+uniform float u_Scale;
+
+vec4 clipspace_coordinate( vec3 xyz, float scale, vec2 res )
+{
+  return vec4( (xyz * vec3(1.0,1.0,1.0) * scale) / (vec3(res,1.0)) * 1.98 - 0.99, 1.0) * vec4( 1.0,-1.0,1.0,1.0 );
+}
+
+void main(void)
+{
+    gl_Position  = clipspace_coordinate( a_point, u_Scale, u_Resolution );
+    gl_PointSize = 4.0;
+    vColor       = a_color;
+}") fragment-shader-string ("#version 300 es
+precision mediump float;
+
+in  vec4 vColor;
+out vec4 FragColor;
+
+void main(void)
+{
+    FragColor = vColor;
+}"))
+
+
+
+;;(include "./bucketed-tree.sibilant")
+
+;; There is an object pool embeded in this object.
+;; this type can be simplified by pulling it out.
+(def-interface System
+    (limit
+
+     *type
+
+     (*members (*type.Array limit))
+
+     (*tree ((create Bucketed-tree)))
+
+     (symbols {})
+     (systems {})
+
+
+     (*available (.map ( Array.from *members) (=> (m k) (assign  m.id k) m)))
+     (*in-use []))
+
+
+
+
+  (symbols {})
+  (systems {})
+
+
+  (def-generic clear ())
+
+  (def-generic remove (key-sequence *tree)
+    ;; what?
+    (.find (value-of (.find *tree key-sequence ) )))
+  (def-generic delete (keys *tree)
+    (.delete *tree keys))
+
+  (def-generic find (key-sequence *tree)
+    (get (.find *tree key-sequence) 'value))
+
+  (def-generic insert (key-sequence  [ *available *in-use  *tree ])
+
+    (.*insert this key-sequence  [ *available *in-use  *tree ]))
+
+  (def update () (.*update this)))
+
+(include "./vertex-context")
+
+
+(def-interface Vertex-system (limit *gl *type)
+
+  (extend System)
+
+  (init (.call System.init this limit *type)
+
+        (.init *gl this.*members limit))
+
+  ( *type Vertex )
+  (*gl Vertex-context)
+
+  (def-generic *insert (([[x y z] [r g b a]] [[] []])  [ *available *in-use  *tree ])
+    (collect  member (.pop *available)
+
+              (sprint *available
+                      this.*members
+                      member)
+
+              (.set *tree [x y z ]  member)
+
+              (set-for member.point x y z)
+              (set-for member.color r g b a)
+
+              (.push *in-use member)))
+
+
+
+  (def-generic *update (*in-use)
+    (.render this.*gl *in-use)))
+
+
+ ;; (def-interface Vertex-context (*height *width  *gl *type)
+;;   (*gl Vertex-field-context)
+;;   (init (.call Vertex-system.init this (* *height *width) )))

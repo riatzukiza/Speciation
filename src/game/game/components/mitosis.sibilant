@@ -1,0 +1,74 @@
+(include "./probability")
+
+;;(def-interface Life-cycle)
+
+(def-interface Chance-system ()
+  (def update (entity)
+    (require-components
+     entity
+     (Chance)
+     (assign Chance.value (prob-prod [Health Hydration Calories Nutriants])))))
+
+(def-interface Random-event-system ()
+
+  (def update (entity )
+    "chance must be a floating point less than 1 but greater than 0"
+
+    (let ((random (Math.random))
+          (chance (.*calculate-chance this entity)))
+
+      (if (>  chance random)
+
+          (.*emit this entity  )))))
+
+;; (def-interface Division-system ()
+
+;;   (extend Probabalistic-system)
+
+;;   (def-generic divide (entity (loc (random-neighbor entity [Water Light Silt] Probability-space)))
+
+;;     "attempt to create a new instance of the entity at a near by location"
+
+;;     (require-components
+
+;;      entity
+
+;;      (Health
+;;       Hydration
+;;       Calories
+;;       Nutriants)
+
+;;      (.remove Hydration (/ Hydration.value 2))
+;;      (.remove Nutriants (/ Hydration.value 2))
+;;      (.remove Calories (/ Hydration.value 2))
+
+;;      (.spawn Algae (find entity.x (first loc)) (find entity.y (second loc))))))
+
+(def-interface Mitosis (entity)
+
+
+  ;; find out what that closed system thing is in thermodynamics,
+  ;; there should be an example of it some where in the junk.
+
+  (def-generic update (entity  divide)
+
+    "choose randomly a cell to divide into, biased against total amount
+of available resources in all locations around the cell"
+
+    (require-components
+     entity
+
+     (Health
+      Hydration
+      Calories
+      Nutriants)
+
+     ;;(print "updating mitotic spindles")
+
+     ;; (sprint Health)
+     ;; (sprint Nutriants)
+     ;; (sprint Calories)
+     ;; (sprint Hydration)
+
+     )))
+

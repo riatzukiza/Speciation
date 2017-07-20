@@ -1,0 +1,88 @@
+(def-interface Algae  (x y components)
+
+  (extend Entity)
+
+  (r 0)
+  (g 255)
+  (b 0)
+
+  (a 255)
+
+  (init (.call Entity.init this  x y )
+        (when this.*spawned
+
+          (set this
+               'r 0
+               'g 255
+               'b 0
+               'a 255)
+          (assign this.*dead false)
+
+          (once this.event "death" (entity)
+                ;;(print "died" entity)
+
+                (unless  entity.*dead
+                  (require-components
+                   entity
+
+                   (Hydration
+                    Calories
+                    Nutriants)
+                   (assign entity.*dead true)
+
+                   ;;(print Health Nutriants Calories Hydration)
+
+                   (set entity 'r 128 'g 100 'b 80 'a 255)
+
+                   (assign entity.components
+                           [
+
+                            Hydration
+                            ;;Calories
+                            Nutriants
+                            (dots (.map [
+
+                                         Nutriant-emitter
+                                         Water-emitter
+                                         Decaying
+
+                                         ]
+                                        (=> (T) (set entity T.symbol (create-instance-of T entity)))))]))))))
+
+  (def clear ()
+
+    (assign this.aspects Algae.aspects)
+    (.remove-all-listeners this.event "*")
+    (.remove-all-listeners this.event "death")
+    (.call Entity.clear this))
+
+  (aspects
+
+   [
+    Health
+    Water-absorbtion
+    Photoreceptor
+    Nutriant-absorber
+
+
+    Mitosis
+
+    ;; ;; base life form stuff
+
+    Nutriants
+    Calories
+
+    ;; Hydration reduces the amount of energy required to perform most actions.
+    ;; resulting in less damage taken
+
+    Hydration
+
+
+    Natural-healing
+
+    ]))
+
+(assign Algae.system
+        (.init (.define Interface 'Algae.system
+                        (lit (extend Entity-system)
+                             (interface Algae)))))

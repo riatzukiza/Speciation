@@ -1,0 +1,66 @@
+
+(include "kit/macros")
+(import-namespace kit)
+
+(include "kit/header")
+
+(require! 'sibilant 'repl 'chokidar
+
+          (lit File-system) "./file-system"
+          )
+(require! (lit Event-emitter) "events")
+(def Array.prototype.each (f)
+  (.for-each this f)
+  this)
+
+
+(macro def-controller (name args ...body)
+       `(var @name (let @args (lit ...@body))))
+
+(macro task (...body) `(assign this.state (then  this.state state ...@body)))
+
+
+
+(macro wait (t ...body) `(make-promise (set-timeout (-> (success (scoped ...@body))) @t))) 
+
+(def-interface Source-map
+
+    (config
+     (lib ((create File-system) "./lib"))
+     (src ((create File-system) "./src"))
+
+     (*cache (new Map))
+
+     (changed [])
+     (members [])
+
+     (event (new Event-emitter)))
+
+  (state (.all Promise [src lib]))
+
+  (gett event event)
+
+
+  (def update ([srcf libf])
+    (task (then srcf.string  s
+                (var r (pipe s this.config.compile (get 'js)))
+                (assign libf.string r)
+                (.emit event 'update [srcf libf]))))
+
+  (def add (p)
+    (task (async-let ((src* (.find src (+ p (first this.config.ext))))
+                      (l (.find lib (+ p (second this.config.ext)))))
+
+            (var r [src* l])
+
+            (.on (.watch chokidar src*.path) 'change
+                 (-> (.update this r)))
+
+            (.emit event 'load r))))
+
+  (def find (p) (remember *cache p (.add this p)))
+
+  (def load (config)
+    (Promise.all (.map p (#-> this.find) ))))
+
+(export Source-map)

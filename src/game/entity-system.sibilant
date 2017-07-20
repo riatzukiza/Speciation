@@ -1,0 +1,50 @@
+
+;; (def spawn ()
+;;   "Aquire an empty entity instance, and initialize it."
+
+
+;;   (.spawn this.system (dots arguments)))
+
+;; (def despawn ()
+
+;;   "Remove this entity from the system."
+
+;;   (when this.*spawned (.release this.system this))
+;;   this)
+
+;; (def-generic update (components)
+;;   "update every component of this entity in order of appearance."
+;;   (each components (comp) (.update comp this)))
+
+(def-interface Component-pool
+
+    (aspects ;; systems which manage the components that are associated with this type of entity
+     (components [])
+     (event (new Event-emitter)))
+
+  (init (.*build-components this  aspects components))
+
+  (def-generic *build-components (aspects components)
+    (.transform Array aspects
+                (=> (T) (set this T.symbol (.aquire T this)))
+                components))
+
+
+  (def-generic clear ((entity this) layer)
+    "remove an entity from the system, and clear its component list."
+
+    ;;(print "clearing" entity)
+    (.remove-all-listeners entity.event "error")
+
+    (assign entity.event null)
+
+    entity))
+
+(def-interface Entity-system (limit)
+
+
+  (init (.call Pooled-system.init this limit this.interface))
+
+  (interface Component-pool)
+
+  )

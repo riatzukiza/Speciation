@@ -1,0 +1,9 @@
+(include "kit/header")
+
+(import-namespace kit)
+
+(require! 'sibilant 'repl 'chokidar
+          (lit Source-map) "./source-map")
+
+
+(export Source-map)

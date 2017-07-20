@@ -1,0 +1,60 @@
+
+;; (include "../kit/header")
+;; (import-namespace kit)
+
+;; (require! hashFile "./hash-file.js"
+;;           'sibilant
+;;           )
+;; (include "../blog/services/file-system/")
+
+;; ;; (var src (.load File-system "./src")
+;; ;;      js (.load File-system "./out"))
+
+
+;; (def-interface Module ())
+;; (def-interface Module.System ())
+
+;; (var input ((create File-system) "./sib")
+;;      output ((create File-system) "./out"))
+
+;; ;;(declare m input output)
+;; (const (lit basename ) path)
+
+;; (var same-basename (=> ([i o]) (and (= (basename i.path) (basename o.path)))))
+;; (def presume (parties assumption)
+;;   (.specify Relationship parties assumption))
+
+;; (alias-macro -> to)
+;; (var compile (fpipe sibilant
+;;                     (get 'js)))
+;; (def compile (i o)
+;;   (assign o.string (get (sibilant i) 'js))
+;;   )
+
+;; (comment (pipe (.watch input (+ module.path ".sibilant"))
+;;                (.on 'change (=> (file)
+;;                                 (pipe file.string
+;;                                       (.then sibilant)
+;;                                       (.then (fget ')))))))
+
+;; ()
+
+;; (def watched (*inp)
+;;   (.each *inp (=> (*i)(.watch input *i.path)))
+;;   )
+;; (.each ((create Relationship) [input output] same-basename)
+;;        (=> ([input output])
+;;            (clear-listeners "change")
+;;            (.on (watched input) "change")
+
+;;            ))
+;; (assume module [input output] same-basename
+;;         (as (watched input) change
+;;             (.then (compile input )
+;;                    (to output))))
+
+;; (var m (presume [input output] same-basename))
+
+;; (.add m "./index")
+
+;; (print sibilant)

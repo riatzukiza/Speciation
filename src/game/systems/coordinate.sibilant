@@ -1,0 +1,5 @@
+(def-interface Position ())
+
+(def-interface Positioning ()
+  (extend Pooled-system)
+  (interface Position))

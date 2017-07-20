@@ -1,0 +1,33 @@
+;; Today we are moving a few things around a bit, the system
+;; that I was using to send code to the electron process has been bothering me
+;; for a long time now, so I have decided to do a bit about it.
+
+;; In addition to this , we recently implemented several new features and its a good idea to
+;; go over the module structure and pick out any potential future problems.
+
+;; yet another refactory pass.
+
+;; what is getting refactored?
+;; + compiler
+;; + interpretor
+;; + module loading
+
+;; what is staying the (mostly) same?
+
+;; + Rendering
+;; + entity systems
+;; + coordinates
+;; Basicly everything that we did in the last few sessions,
+;; we just wrote them so we don't yet fully understand their problems enough
+;; to make refactoring them worth it.
+
+
+;; We start here, I write this file out before I do anything else out even though I have
+;; yet to declare or describe any of these ideas.
+
+;; Why? There are a few reasons I choose to do this.
+;; For one, many of these ideas I have implemented before in a more procedural fashion, so I
+;; know a good bit about the nature of the object already.
+
+
+(var window (.spawn Window "./index.html"))

@@ -1,0 +1,32 @@
+
+(def-interface Game
+    (systems
+     tick-rate
+     (ticker (.init Ticker tick-rate)))
+
+  (*started false)
+
+  (tick-rate 1)
+
+  (def-generic start ( systems )
+
+    (unless this.*started
+
+      (pipe this.ticker
+            .start
+            (on  'tick (now ticks)
+                 (.update this ticks systems)))
+
+      (assign this.*started true)))
+
+  (def stop ()
+
+    (assign this.*started false)
+
+    (.stop this.ticker)
+
+    (.remove-all-listeners this.ticker 'tick))
+
+  (def update (ticks systems)
+    (each systems (s)
+          (.update s ticks))))

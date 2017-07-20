@@ -1,0 +1,140 @@
+
+(def total (arr)
+  "calculate the total sum of all values in an eachable."
+  (var sum 0)
+
+  (each arr (v) (incr-by sum v))
+  sum)
+
+;; As I have gone and read this code, I have been finding that there are way more
+;; systems I could generealize than I have realized.
+
+;; This display stats function, for instance, its self could be part of somthing much larger that itterates over
+;; a list of fields and displays all their values.
+
+;; I don't want to display them in the console though, that is laggy as hell.
+;; its better to shove it into the dom.
+
+
+(def display-stats (field-system)
+  "calculate and log the average and total values for all cells in a system."
+
+  (pipe field-system.field
+        total
+        ((aprint "total" field-system.name))
+
+        (/  (* 100 100))
+        ( (aprint "average" field-system.name))))
+
+
+;; (def update-off-beat-fields (current-system)
+;;   "Swap the transition with the state of all field systems except the one currently said to be active."
+;;   (pipe systems
+;;         (.filter  (=> (s) (not (= s current-system))))
+;;         (each (s) (.update s.field))))
+
+(def update-on-beat-field (current-system ticks)
+  "calculate the values for the system that is said to currently be active. Systems are updated one
+at a time, one per tick,so that updates to each can make changes to each. Values of each system will
+be integrated for the time missing between each of their updates."
+
+  (.update  current-system ticks)
+
+  (.update current-system.field))
+
+(def get-onbeat (ticks)
+  "return the id of the *onbeat* or major system of the current tick"
+  (get systems (mod ticks systems.length) 'symbol))
+
+(def refresh-fields ()
+  "update the state matricies of every existing field."
+  (each systems (system) (.update system.field )))
+
+(def update-display ()
+  (pipe sim.layers
+        (.update )
+        (.render)))
+
+
+(def bulk-spawn-entity (T args)
+  (each args (a) (.spawn T (dots a))))
+
+;; (def clear-entities ()
+;;   (each  (e) (.remove e)))
+
+(def update-game (ticks)
+  "Gets called every tick of the game, and for every system of the process,
+we update its state, and recaculate the values of the current major field."
+
+  (if (= Algae.system.*pool.used 0) (initialize-game))
+
+  (var current-system (get systems (mod ticks systems.length) ))
+
+  ;;(print "starting update" sim.elapsed ticks current-system)
+
+  ;;(refresh-fields)
+
+  ;;(update-off-beat-fields current-system ticks)
+
+  (update-on-beat-field current-system ticks)
+
+  (refresh-fields)
+
+  ;;(update-entities)
+  (.update Algae.system)
+
+  (refresh-fields)
+
+  ;; (display-stats Water )
+
+  ;; (display-stats Light )
+
+  ;; (display-stats Heat)
+
+  ;; (display-stats Silt)
+
+
+  (update-display ))
+
+
+(def randomize-fields ()
+
+  (each systems (s) (.randomize s)))
+;;(randomize-fields)
+
+
+;;(print Algae.system)
+;; (initialize-game)
+
+;; (each systems (s) (.populate s))
+
+;; (var lagged-ticks 0)
+
+
+;; (macro if-pipe (value ...rest)
+;;        `(if ...@(.bind (bulk-map rest (=> (cond action) (if action )))
+;;                        (=> (x) x))))
+
+;; (pipe Ticker
+;;       (.init  3)
+;;       (.start )
+;;       (.remove-all-listeners 'tick)
+
+;;       (.on 'tick (=> (now tick)
+
+;;                      (if (> Ticker.elapsed (* Ticker.rate 3 ))
+;;                          (do (incr lagged-ticks)
+
+;;                              (print "game is lagging" Ticker.elapsed
+;;                                     "is greater than" Ticker.rate
+
+;;                                     "for" lagged-ticks "ticks")
+
+;;                            (if (> lagged-ticks 20)
+
+;;                                (do (print "resetting from lag")
+;;                                    (initialize-game))))
+
+;;                          (assign lagged-ticks 0))
+
+;;                      (update-game tick))))

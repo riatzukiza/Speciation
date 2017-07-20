@@ -1,0 +1,33 @@
+(require "webgl/lib/ext/window")
+
+;; Program needs to be a global variable right now to work, I have to refactor the webgl code
+;; to keep track of its own concept of global with in it.
+
+;; Andy said to blame web gls global nature?
+;; it just needs to keep track of its own global state.
+
+(require! (lit Buffer Program Shader Attribute Type Context Uniform) "webgl/lib/webgl/gl"
+          (lit Blend-mode) "webgl/lib/math/color.js")
+
+(def-curried feach (f a)
+  (.each a f))
+
+(var Andy (lit (Gl (require "webgl/lib/webgl/gl"))
+               (Color (require "webgl/lib/math/color.js"))))
+
+(assign Andy.Color.RGBA Andy.Gl.Type.RGBA
+        Andy.ubyte Andy.Gl.Type.ubyte
+        Andy.Type Andy.Gl.Type)
+
+(mixin [Andy.Gl Andy.Color] Andy)
+
+(alias-macro fpipe #pipe)
+
+(var bound (#pipe .bind )
+     clear (#pipe .clear )
+     rendered (#pipe .render)
+
+     unbound (#pipe .unbind)
+     disabled (#pipe .disable)
+
+     enabled (#pipe .enable))

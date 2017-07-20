@@ -1,0 +1,8 @@
+
+(def-interface Electron-process
+    (name
+     (process (spawn "npm" [("electron."name)] { stdio [null null null "ipc"] })))
+  (def-generic load (name process)
+    ((create Electron-process) name)
+    )
+  )

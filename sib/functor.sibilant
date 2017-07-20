@@ -1,0 +1,27 @@
+;; (def-curried mmix (doners patient)
+;;   (mixin doners patient))
+(var mmix (curry mixin))
+
+(def-curried ftype (unit,interface)
+
+  (def m (a)
+    (collect r (Object.create m)
+             (assign r.value (.call unit r a))))
+
+  (mixin [(lit unit) interface] m))
+
+(var identity (=> (value) value))
+
+(var Functor (fype identity
+                   (lit (def map (f v)
+                          (this.unit (f v))))))
+(.map (Functor 10) (aprint "is ten"))
+
+(def Functor.define ())
+(def Functor (value))
+(def Functor.map ())
+
+(def-curried mapo (f o )
+  (var r (lit))
+  (each-key  (k) o
+             (set r k (get o k))))

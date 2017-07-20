@@ -1,0 +1,38 @@
+(namespace compiler)
+
+(include "kit/header")
+(import-namespace kit)
+(include "../../interface/header.sibilant")
+(import-namespace interface)
+
+(require! 'sibilant )
+
+(def-interface Sibilant ())
+
+(require! List "../js/list.js")
+
+(macro of (t n ...body)
+       `(collect r @t
+                 (do-times @n
+                   (.push r (scoped
+                             ...@body)))))
+(macro array-of (n ...body)
+       `(of [] @n ...@body))
+
+(alias-macro loop compose)
+
+(def-interface Stream ((*e (new Event-emitter))
+                       (*data ((create List))))
+
+  (def-generic write (d *data *e)
+    (.emit *e 'write (.push *data d)))
+
+  (def-generic read (n *data *e)
+    (compose (array-of n )
+             (collect r (.unshift *data ) )
+             (.emit *e 'read r)))
+
+  (def map (f))
+  (def on (f))
+  (def once ())
+  )

@@ -16,8 +16,8 @@ promise."
      (*t ((create Tree-map))))
   (doc "used when there are more than one tree with a similar structure
 that you want to access simultaneously.")
-  (def specify ((dots *T))
-    ((create Relationship) *T))
+  (def specify ()
+    ((create Relationship) ))
 
   (def-generic add (p *T *t )
     "Add a relationship to the tree. When a relationship is
@@ -32,3 +32,4 @@ structures are expected to share this structural feature."
     "locate a relationship in the diagram"
     (task (.find *t p)))
   (def-generic each (f *a)))
+(export Relationship)
