@@ -1,0 +1,19 @@
+
+(include "kit/macros")
+(import-namespace kit)
+
+(include "kit/header")
+
+(require! electron 'electron proc "child_process"
+          (lit Interface) "./interface")
+
+(include "./interface/header")
+(import-namespace interface)
+
+(def-interface Process ()
+  (def spawn ())
+  (def despawn ())
+  (def send ())
+  )
+(meta (print "incomplete sibilant"(sibilant "(foobar"))
+      (print "... okay now its done" (sibilant ")")))

@@ -23,10 +23,9 @@
 
 (macro wait (t ...body) `(make-promise (set-timeout (-> (success (scoped ...@body))) @t))) 
 
-(def-interface Source-map
+(def-controller Source-map
 
-    (config
-     (lib ((create File-system) "./lib"))
+    ((lib ((create File-system) "./lib"))
      (src ((create File-system) "./src"))
 
      (*cache (new Map))
@@ -35,7 +34,6 @@
      (members [])
 
      (event (new Event-emitter)))
-
   (state (.all Promise [src lib]))
 
   (gett event event)
@@ -43,24 +41,30 @@
 
   (def update ([srcf libf])
     (task (then srcf.string  s
-                (var r (pipe s this.config.compile (get 'js)))
-                (assign libf.string r)
-                (.emit event 'update [srcf libf]))))
+                (var r (pipe s sibilant (get 'js)))
 
+                (assign libf.string r)
+
+                (.emit event 'update [srcf libf]))))
   (def add (p)
-    (task (async-let ((src* (.find src (+ p (first this.config.ext))))
-                      (l (.find lib (+ p (second this.config.ext)))))
+    (task (async-let ((src* (.find src (+ p ".sibilant")))
+                      (l (.find lib (+ p ".js"))))
 
             (var r [src* l])
 
             (.on (.watch chokidar src*.path) 'change
-                 (-> (.update this r)))
+
+                 (-> (print "file changed")
+                     (.update this r)))
+
 
             (.emit event 'load r))))
 
-  (def find (p) (remember *cache p (.add this p)))
+  (def find (p)
+    (remember *cache p (.add this p)))
 
-  (def load (config)
-    (Promise.all (.map p (#-> this.find) ))))
+
+  (def load ((dots p))
+    (Promise.all (.map p (fpipe this.find) ))))
 
 (export Source-map)

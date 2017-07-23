@@ -8,6 +8,7 @@
 
 (require! 'sibilant 'repl 'chokidar
 
+          (lit Interface) "./lib/index"
           (lit File-system) "./lib/file-system"
           (lit Source-map) "./lib/source-map"
           (lit Process) "./lib/electron"
@@ -33,29 +34,22 @@
 
 ;; next step is to revise the engine, move all relevent code in sib to src and
 ;; build it to compile properly to lib
-(.load Source-map sibilant
-       ["./src" "./lib"]
-       ["index"
-        "file-system"
-        "source-map"
-        "interface"
-        "tree"
-        "electron"
-        "game"])
+(.load Compiler ["index" "file-system" "source-map" "interface" "tree" "electron"])
 
 
-;; Process is the electron context, the browser space, where all our code is to be evaluated
-(const process (.load Process "game"))
-;; The client sets up a connection with a server spawned by the process.
-;; we will send from the client to the server javascript that is to be executed in the context.
-(const client (.spawn Client ))
 
-(.once process 'loaded
-       (-> (.start client)))
+;; ;; Process is the electron context, the browser space, where all our code is to be evaluated
+;; (const process (.spawn Process "game"))
+;; ;; The client sets up a connection with a server spawned by the process.
+;; ;; we will send from the client to the server javascript that is to be executed in the context.
+;; (const client (.spawn Client ))
+
+;; (.once process 'load
+;;        (-> (.start client)))
 
 
-;; (pipe (.then (-> )
-;;              (athrow Error "failed to load"))
+;; ;; (pipe (.then (-> )
+;; ;;              (athrow Error "failed to load"))
 
-;;       (.then (-> ) (athrow Error "failed to load")))
+;; ;;       (.then (-> ) (athrow Error "failed to load")))
 
